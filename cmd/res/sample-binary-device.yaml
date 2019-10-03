@@ -1,0 +1,21 @@
+name: "sample-binary"
+manufacturer: "Intel Corp."
+model: "Some 3rd party app sending JSON"
+labels:
+ - "rest"
+ - "binary"
+description: "REST Device that sends in binary data"
+
+deviceResources:
+  - name: binary
+    description: "Binary message"
+    properties:
+      value:
+        { type: "Binary", readWrite: "W" , defaultValue: "" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+
+deviceCommands:
+  - name: PostBinary
+    get:
+      - { operation: "get", object: "binary"}

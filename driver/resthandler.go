@@ -1,0 +1,366 @@
+//
+// Copyright (c) 2019 Intel Corporation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package driver
+
+import (
+	"context"
+	"fmt"
+	"io/ioutil"
+	"math"
+	"net/http"
+	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/spf13/cast"
+
+	sdk "github.com/edgexfoundry/device-sdk-go"
+	"github.com/edgexfoundry/device-sdk-go/pkg/models"
+	"github.com/edgexfoundry/go-mod-core-contracts/clients"
+	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
+)
+
+const (
+	deviceNameKey     = "deviceName"
+	resourceNameKey   = "resourceName"
+	apiResourceRoute  = clients.ApiBase + "/resource/{" + deviceNameKey + "}/{" + resourceNameKey + "}"
+	handlerContextKey = "RestHandler"
+)
+
+type RestHandler struct {
+	service     *sdk.Service
+	logger      logger.LoggingClient
+	asyncValues chan<- *models.AsyncValues
+}
+
+func NewRestHandler(service *sdk.Service, logger logger.LoggingClient, asyncValues chan<- *models.AsyncValues) *RestHandler {
+	handler := RestHandler{
+		service:     service,
+		logger:      logger,
+		asyncValues: asyncValues,
+	}
+
+	return &handler
+}
+
+func (handler RestHandler) Start() error {
+	if err := handler.service.AddRoute(apiResourceRoute, handler.addContext(deviceHandler), http.MethodPost); err != nil {
+		return fmt.Errorf("unable to add required route: %s: %s", apiResourceRoute, err.Error())
+	}
+
+	handler.logger.Info(fmt.Sprintf("Route %s added.", apiResourceRoute))
+
+	return nil
+}
+
+func (handler RestHandler) addContext(next func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), handlerContextKey, handler)
+		next(w, r.WithContext(ctx))
+	})
+}
+
+func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	deviceName := vars[deviceNameKey]
+	resourceName := vars[resourceNameKey]
+
+	handler.logger.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
+
+	_, err := handler.service.GetDeviceByName(deviceName)
+	if err != nil {
+		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
+		http.Error(writer, fmt.Sprintf("Device '%s' not found", deviceName), http.StatusNotFound)
+		return
+	}
+
+	deviceResource, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
+	if !ok {
+		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
+		http.Error(writer, fmt.Sprintf("Resource '%s' not found", resourceName), http.StatusNotFound)
+		return
+	}
+
+	var reading interface{}
+	readingType := models.ParseValueType(deviceResource.Properties.Value.Type)
+
+	if readingType == models.Binary {
+		reading, err = handler.readBodyAsBinary(writer, request)
+	} else {
+		reading, err = handler.readBodyAsString(writer, request)
+	}
+
+	if err != nil {
+		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Unable to read request body: %s", err.Error()))
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	value, err := handler.newCommandValue(resourceName, reading, readingType)
+	if err != nil {
+		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s", deviceName, resourceName, err.Error()))
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	asyncValues := &models.AsyncValues{
+		DeviceName:    deviceName,
+		CommandValues: []*models.CommandValue{value},
+	}
+
+	handler.logger.Debug(fmt.Sprintf("Incoming reading received: Device=%s Resource=%s", deviceName, resourceName))
+
+	handler.asyncValues <- asyncValues
+}
+
+func (handler RestHandler) readBodyAsString(writer http.ResponseWriter, request *http.Request) (string, error) {
+	defer request.Body.Close()
+	body, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		return "", err
+	}
+
+	if len(body) == 0 {
+		return "", fmt.Errorf("no request body provided")
+	}
+
+	return string(body), nil
+}
+
+func (handler RestHandler) readBodyAsBinary(writer http.ResponseWriter, request *http.Request) ([]byte, error) {
+	defer request.Body.Close()
+	body, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(body) == 0 {
+		return nil, fmt.Errorf("no request body provided")
+	}
+
+	return body, nil
+}
+
+func deviceHandler(writer http.ResponseWriter, request *http.Request) {
+	handler, ok := request.Context().Value(handlerContextKey).(RestHandler)
+	if !ok {
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Bad context pass to handler"))
+		return
+	}
+
+	handler.processAsyncRequest(writer, request)
+}
+
+func (handler RestHandler) newCommandValue(resourceName string, reading interface{}, valueType models.ValueType) (*models.CommandValue, error) {
+	var result = &models.CommandValue{}
+	var err error
+	var timestamp = time.Now().UnixNano()
+	castError := "fail to parse %v reading, %v"
+
+	if !checkValueInRange(valueType, reading) {
+		err = fmt.Errorf("parse reading fail. Reading %v is out of the value type(%v)'s range", reading, valueType)
+		handler.logger.Error(err.Error())
+		return result, err
+	}
+
+	switch valueType {
+	case models.Binary:
+		val, ok := reading.([]byte)
+		if !ok {
+			return nil, fmt.Errorf(castError, resourceName, "not []byte")
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Bool:
+		val, err := cast.ToBoolE(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.String:
+		val, err := cast.ToStringE(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Uint8:
+		val, err := cast.ToUint8E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Uint16:
+		val, err := cast.ToUint16E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Uint32:
+		val, err := cast.ToUint32E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Uint64:
+		val, err := cast.ToUint64E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Int8:
+		val, err := cast.ToInt8E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Int16:
+		val, err := cast.ToInt16E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Int32:
+		val, err := cast.ToInt32E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Int64:
+		val, err := cast.ToInt64E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Float32:
+		val, err := cast.ToFloat32E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Float64:
+		val, err := cast.ToFloat64E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	default:
+		err = fmt.Errorf("return result fail, none supported value type: %v", valueType)
+	}
+
+	return result, err
+}
+
+func checkValueInRange(valueType models.ValueType, reading interface{}) bool {
+	isValid := false
+
+	if valueType == models.String || valueType == models.Bool || valueType == models.Binary {
+		return true
+	}
+
+	if valueType == models.Int8 || valueType == models.Int16 ||
+		valueType == models.Int32 || valueType == models.Int64 {
+		val := cast.ToInt64(reading)
+		isValid = checkIntValueRange(valueType, val)
+	}
+
+	if valueType == models.Uint8 || valueType == models.Uint16 ||
+		valueType == models.Uint32 || valueType == models.Uint64 {
+		val := cast.ToUint64(reading)
+		isValid = checkUintValueRange(valueType, val)
+	}
+
+	if valueType == models.Float32 || valueType == models.Float64 {
+		val := cast.ToFloat64(reading)
+		isValid = checkFloatValueRange(valueType, val)
+	}
+
+	return isValid
+}
+
+func checkUintValueRange(valueType models.ValueType, val uint64) bool {
+	var isValid = false
+	switch valueType {
+	case models.Uint8:
+		if val >= 0 && val <= math.MaxUint8 {
+			isValid = true
+		}
+	case models.Uint16:
+		if val >= 0 && val <= math.MaxUint16 {
+			isValid = true
+		}
+	case models.Uint32:
+		if val >= 0 && val <= math.MaxUint32 {
+			isValid = true
+		}
+	case models.Uint64:
+		maxiMum := uint64(math.MaxUint64)
+		if val >= 0 && val <= maxiMum {
+			isValid = true
+		}
+	}
+	return isValid
+}
+
+func checkIntValueRange(valueType models.ValueType, val int64) bool {
+	var isValid = false
+	switch valueType {
+	case models.Int8:
+		if val >= math.MinInt8 && val <= math.MaxInt8 {
+			isValid = true
+		}
+	case models.Int16:
+		if val >= math.MinInt16 && val <= math.MaxInt16 {
+			isValid = true
+		}
+	case models.Int32:
+		if val >= math.MinInt32 && val <= math.MaxInt32 {
+			isValid = true
+		}
+	case models.Int64:
+		if val >= math.MinInt64 && val <= math.MaxInt64 {
+			isValid = true
+		}
+	}
+	return isValid
+}
+
+func checkFloatValueRange(valueType models.ValueType, val float64) bool {
+	var isValid = false
+	switch valueType {
+	case models.Float32:
+		if math.Abs(val) >= math.SmallestNonzeroFloat32 && math.Abs(val) <= math.MaxFloat32 {
+			isValid = true
+		}
+	case models.Float64:
+		if math.Abs(val) >= math.SmallestNonzeroFloat64 && math.Abs(val) <= math.MaxFloat64 {
+			isValid = true
+		}
+	}
+	return isValid
+}
