@@ -1,0 +1,31 @@
+name: "sample-numbers"
+manufacturer: "Intel Corp."
+model: "Some 3rd party App sending int & floats"
+labels:
+ - "rest"
+ - "float64"
+ - "int64"
+description: "REST Device that sends in ints and floats"
+
+deviceResources:
+  - name: int
+    description: "Int64 value"
+    properties:
+      value:
+        { type: "Int64", readWrite: "W" , defaultValue: "" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: float
+    description: "Float64 value"
+    properties:
+      value:
+        { type: "Float64", readWrite: "W" , defaultValue: "" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+deviceCommands:
+  - name: PostInt
+    get:
+      - { operation: "get", object: "int"}
+  - name: PostFloat
+    get:
+      - { operation: "get", object: "float"}
