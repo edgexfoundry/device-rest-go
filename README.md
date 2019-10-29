@@ -14,7 +14,7 @@ This device service provides easy way for 3'rd party applications, such as Point
 This device service creates the additional parametrized `REST` endpoint:
 
 ```
-/ap1/vi/device/{deviceName}/{resourceName}
+/ap1/vi/resource/{deviceName}/{resourceName}
 ```
 
 - `deviceName` refers to the `device` defined in a `device profile` and the `configuration.toml`.
