@@ -20,7 +20,12 @@ cmd/device-rest-go:
 	$(GO) build $(GOFLAGS) -o $@ ./cmd
 
 test:
-	$(GO) test ./... -coverprofile=coverage.out
+	$(GO) test -coverprofile=coverage.out ./...
+	$(GO) vet ./...
+	gofmt -l .
+	[ "`gofmt -l .`" = "" ]
+	./bin/test-go-mod-tidy.sh
+	./bin/test-attribution-txt.sh
 
 clean:
 	rm -f $(MICROSERVICES)
