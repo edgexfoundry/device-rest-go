@@ -42,6 +42,8 @@ LABEL license='SPDX-License-Identifier: Apache-2.0' \
   copyright='Copyright (c) 2019: Intel'
 LABEL Name=device-rest-go Version=${VERSION}
 
+COPY --from=builder /app/Attribution.txt /
+COPY --from=builder /app/LICENSE /
 COPY --from=builder /app/cmd /
 
 EXPOSE 49986
