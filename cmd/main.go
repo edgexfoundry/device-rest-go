@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	serviceName string = "device-rest-go"
+	serviceName string = "edgex-device-rest"
 )
 
 func main() {
