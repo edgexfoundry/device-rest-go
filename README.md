@@ -72,20 +72,20 @@ As with all device services the `device profile` is where the **Device Name**, *
 
 The best way to test this service with simulated data is to use **PostMan** to send data to the following endpoints defined for the above device profiles.
 
-- http://localhost:59995/api/v1/resource/sample-binary/binary
+- http://localhost:49986/api/v1/resource/sample-binary/binary
 
   - POSTing any binary data will result in the `BinaryValue` of the `Reading` being set to the binary data posted.
 
-- http://localhost:59995/api/v1/resource/sample-json/json
+- http://localhost:49986/api/v1/resource/sample-json/json
 
   - POSTing a string value will result in the  `Value` of the `Reading` being set to the string value posted.
 
     *Note: Currently there isn't a JSON data type, thus there is no validation that the string value is valid JSON. It is up to the Application Service using the JSON to first validate it.*
 
-- http://localhost:59995/api/v1/resource/sample-numbers/int
+- http://localhost:49986/api/v1/resource/sample-numbers/int
   - POSTing a value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Int64`. The POSTed value is verified to be a valid `Int64` value. 
   - A 400 error will be retuned if the POSted value fails the `Int64` type verification.
-- http://localhost:59995/api/v1/resource/sample-numbers/float
+- http://localhost:49986/api/v1/resource/sample-numbers/float
   - POSTing a value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Float64`. The POSTed value is verified to be a valid `Float64` value. 
   - A 400 error will be retuned if the POSted value fails the `Float64` type verification.
 

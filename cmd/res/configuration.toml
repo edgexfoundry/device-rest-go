@@ -3,7 +3,7 @@ LogLevel = 'DEBUG'
 
 [Service]
 Host = "localhost"
-Port = 59995
+Port = 49986
 ConnectRetries = 20
 Labels = []
 OpenMsg = "REST device started"

@@ -3,7 +3,7 @@ LogLevel = 'INFO'
 
 [Service]
 Host = "edgex-device-rest"
-Port = 59995
+Port = 49986
 ConnectRetries = 20
 Labels = []
 OpenMsg = "REST device started"

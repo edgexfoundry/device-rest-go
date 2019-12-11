@@ -44,6 +44,6 @@ LABEL Name=device-rest-go Version=${VERSION}
 
 COPY --from=builder /app/cmd /
 
-EXPOSE 59990
+EXPOSE 49986
 
 CMD ["/device-rest-go","--registry=consul://edgex-core-consul:8500","--profile=docker","--confdir=/res"]
