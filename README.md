@@ -5,7 +5,7 @@ This device service provides easy way for 3'rd party applications, such as Point
 
 The current implementation is meant for one-way communication into EdgeX via async readings. If future use cases determine a need for`commanding`, i.e. two-communication, it can be added then.
 
-## Runtime Prerequisite
+## Runtime Prerequisite    
 
 - core-data
   - Mongo or Redis DB
