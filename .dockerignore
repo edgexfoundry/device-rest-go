@@ -9,7 +9,6 @@ docker-compose*
 */bin
 */obj
 README.md
-LICENSE
 .vscode
 .idea/
 go.sum
