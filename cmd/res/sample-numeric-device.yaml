@@ -21,7 +21,7 @@ deviceResources:
       value:
         { type: "Float64", readWrite: "W" , mediaType : "text/plain" }
       units:
-        { type: "String", readWrite: "R" }int
+        { type: "String", readWrite: "R" }
 
 deviceCommands:
   - name: PostInt
