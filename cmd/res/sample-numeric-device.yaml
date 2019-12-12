@@ -1,4 +1,4 @@
-name: "sample-numbers"
+name: "sample-numeric"
 manufacturer: "Intel Corp."
 model: "Some 3rd party App sending int & floats"
 labels:
@@ -12,20 +12,21 @@ deviceResources:
     description: "Int64 value"
     properties:
       value:
-        { type: "Int64", readWrite: "W" , defaultValue: "" }
+        { type: "Int64", readWrite: "W" , mediaType : "text/plain" }
       units:
-        { type: "String", readWrite: "R", defaultValue: "" }
+        { type: "String", readWrite: "R"}
   - name: float
     description: "Float64 value"
     properties:
       value:
-        { type: "Float64", readWrite: "W" , defaultValue: "" }
+        { type: "Float64", readWrite: "W" , mediaType : "text/plain" }
       units:
-        { type: "String", readWrite: "R", defaultValue: "" }
+        { type: "String", readWrite: "R" }int
+
 deviceCommands:
   - name: PostInt
     get:
-      - { operation: "get", object: "int"}
+      - { operation: "get", deviceResource: "int"}
   - name: PostFloat
     get:
-      - { operation: "get", object: "float"}
+      - { operation: "get", deviceResource: "float"}

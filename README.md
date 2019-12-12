@@ -3,7 +3,9 @@ EdgeX device service for REST protocol
 
 This device service provides easy way for 3'rd party applications, such as Point of Sale, CV Analytics, etc., to push data into EdgeX via the REST protocol. 
 
-## Runtime Requisite
+The current implementation is meant for one-way communication into EdgeX via async readings. If future use cases determine a need for`commanding`, i.e. two-communication, it can be added then.
+
+## Runtime Prequisite
 
 - core-data
   - Mongo or Redis DB
@@ -41,17 +43,17 @@ The `DeviceList` configuration is standard except that the `DeviceList.Protocols
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
 [[DeviceList]]
-  Name = "sample-binary"
-  Profile = "sample-binary"
-  Description = "RESTful Device that sends in binary data"
-  Labels = [ "rest", "binary" ]
+  Name = "sample-image"
+  Profile = "sample-image"
+  Description = "RESTful Device that sends in binary image data"
+  Labels = [ "rest", "binary", "image" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]    
 [[DeviceList]]
-  Name = "sample-numbers"
-  Profile = "sample-numbers"
-  Description = "RESTful Device that sends in number data"
-  Labels = [ "rest", "float", "int" ]
+  Name = "sample-numeric"
+  Profile = "sample-numeric"
+  Description = "RESTful Device that sends in numeric data"
+  Labels = [ "rest", "numeric", "float", "int" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
 ```
@@ -60,11 +62,11 @@ The `DeviceList` configuration is standard except that the `DeviceList.Protocols
 
 As with all device services the `device profile` is where the **Device Name**, **Device Resources** and **Device Commands** are define. The parameterized REST endpoint described above references these definitions. Each `Device` has it's own device profile. There are three sample device profiles that define the devices referenced in the above sample configuration.
 
-- **[sample-binary-device](./cmd/res/)**
+- **[sample-image-device](./cmd/res/)**
 - [**sample-json-device**](./cmd/res/sample-json-device.yaml)
-- [**sample-numbers-device**](./cmd/res/sample-numbers-device.yaml)
+- [**sample-numeric-device**](cmd/res/sample-numeric-device.yaml)
 
-> *Note: The`coreCommands` section is omitted since this device service does not support Commanding. See below for details.* 
+> *Note: The`coreCommands` section is omitted since this device service does not support Commanding.* 
 
 > *Note: The `deviceCommands` section only requires the `get` operations.*
 
@@ -72,26 +74,55 @@ As with all device services the `device profile` is where the **Device Name**, *
 
 The best way to test this service with simulated data is to use **PostMan** to send data to the following endpoints defined for the above device profiles.
 
-- http://localhost:49986/api/v1/resource/sample-binary/binary
+- http://localhost:49986/api/v1/resource/sample-image/jpeg
 
-  - POSTing any binary data will result in the `BinaryValue` of the `Reading` being set to the binary data posted.
+  - POSTing a JPEG binary image file will result in the `BinaryValue` of the `Reading` being set to the JPEG image data posted.
+  - Example test JPEG to post:
+    - Select any JPEG file from your computer or the internet
+
+- http://localhost:49986/api/v1/resource/sample-image/png
+
+  - POSTing a PNG binary image file will result in the `BinaryValue` of the `Reading` being set to the PNG image data posted.
+  - Example test PNG to post:
+    - Select any PNG file from your computer or the internet
 
 - http://localhost:49986/api/v1/resource/sample-json/json
 
-  - POSTing a string value will result in the  `Value` of the `Reading` being set to the string value posted.
+  - POSTing a JSON string value will result in the  `Value` of the `Reading` being set to the JSON string value posted.
 
     *Note: Currently there isn't a JSON data type, thus there is no validation that the string value is valid JSON. It is up to the Application Service using the JSON to first validate it.*
+    
+  - Example test JSON value to post:
 
-- http://localhost:49986/api/v1/resource/sample-numbers/int
-  - POSTing a value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Int64`. The POSTed value is verified to be a valid `Int64` value. 
+    ```json
+    {
+    	"id" : "1234",
+        "name" : "test data",
+        "payload" : "test payload"
+    }
+    ```
+
+- http://localhost:49986/api/v1/resource/sample-numeric/int
+  - POSTing a text integer value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Int64`. The POSTed value is verified to be a valid `Int64` value. 
+  
   - A 400 error will be retuned if the POSted value fails the `Int64` type verification.
-- http://localhost:49986/api/v1/resource/sample-numbers/float
-  - POSTing a value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Float64`. The POSTed value is verified to be a valid `Float64` value. 
+  
+  - Example test `int` value to post:
+  
+    ```
+    1001
+    ```
+  
+- http://localhost:49986/api/v1/resource/sample-numeric/float
+  - POSTing a text float value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Float64`. The POSTed value is verified to be a valid `Float64` value. 
+  
   - A 400 error will be retuned if the POSted value fails the `Float64` type verification.
-
-## Commanding
-
-The current implementation is meant for one-way communication into EdgeX. If future use cases determine that `commanding`, i.e. two-communication, is desirable it can be added then.
+  
+  - Example test `float` value to post:
+  
+    ```
+    500.568
+    ```
 
 ## AutoEvents
 

@@ -11,11 +11,11 @@ deviceResources:
     description: "JSON message"
     properties:
       value:
-        { type: "String", readWrite: "W" , defaultValue: "" }
+        { type: "String", readWrite: "W" , mediaType : "application/json" }
       units:
-        { type: "String", readWrite: "R", defaultValue: "" }
+        { type: "String", readWrite: "R" }
 
 deviceCommands:
   - name: PostJson
     get:
-      - { operation: "get", object: "json"}
+      - { operation: "get", deviceResource: "json"}

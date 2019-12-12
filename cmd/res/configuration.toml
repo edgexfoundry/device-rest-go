@@ -63,16 +63,16 @@ File = "./device-rest-go.log"
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
 [[DeviceList]]
-  Name = "sample-binary"
-  Profile = "sample-binary"
-  Description = "RESTful Device that sends in binary data"
-  Labels = [ "rest", "binary" ]
+  Name = "sample-image"
+  Profile = "sample-image"
+  Description = "RESTful Device that sends in binary image data"
+  Labels = [ "rest", "binary", "image" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
 [[DeviceList]]
-  Name = "sample-numbers"
-  Profile = "sample-numbers"
-  Description = "RESTful Device that sends in number data"
-  Labels = [ "rest", "float", "int" ]
+  Name = "sample-numeric"
+  Profile = "sample-numeric"
+  Description = "RESTful Device that sends in numeric data"
+  Labels = [ "rest", "numeric", "float", "int" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
