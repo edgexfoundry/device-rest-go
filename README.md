@@ -5,7 +5,7 @@ This device service provides easy way for 3'rd party applications, such as Point
 
 The current implementation is meant for one-way communication into EdgeX via async readings. If future use cases determine a need for`commanding`, i.e. two-communication, it can be added then.
 
-## Runtime Prequisite
+## Runtime Prerequisite
 
 - core-data
   - Mongo or Redis DB
@@ -19,8 +19,8 @@ This device service creates the additional parametrized `REST` endpoint:
 /api/v1/resource/{deviceName}/{resourceName}
 ```
 
-- `deviceName` refers to the `device` defined in a `device profile` and the `configuration.toml`.
-- `resourceName`refers to the `device resource` defined in the `device profile` that `deviceName` references.
+- `deviceName` refers to the `device` defined in one of the service's `device profiles`.
+- `resourceName`refers to the `device resource` defined in the `device profile` associated with the given `deviceName` .
 
 The data, `text` or `binary`,  posted to this endpoint is type validated and type casted (text data only) to the type defined by the specified `device resource`. The resulting value is then sent into EdgeX via the Device SDK's `async values` channel. 
 
