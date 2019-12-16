@@ -67,6 +67,7 @@ func (handler RestHandler) Start() error {
 }
 
 func (handler RestHandler) addContext(next func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	// Add the context with the handler so the endpoint handling code can get back to this handler
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), handlerContextKey, handler)
 		next(w, r.WithContext(ctx))
@@ -94,6 +95,21 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 		return
 	}
 
+	if deviceResource.Properties.Value.MediaType != "" {
+		contentType := request.Header.Get(clients.ContentType)
+
+		handler.logger.Debug(fmt.Sprintf("Content Type is '%s' & Media Type is '%s' and Type is '%s'",
+			contentType, deviceResource.Properties.Value.MediaType, deviceResource.Properties.Value.Type))
+
+		if contentType != deviceResource.Properties.Value.MediaType {
+			handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Content Type '%s' doesn't match %s resource's Media Type '%s'",
+				contentType, resourceName, deviceResource.Properties.Value.MediaType))
+
+			http.Error(writer, "Wrong Content-Type", http.StatusBadRequest)
+			return
+		}
+	}
+
 	var reading interface{}
 	readingType := models.ParseValueType(deviceResource.Properties.Value.Type)
 
@@ -111,7 +127,9 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 
 	value, err := handler.newCommandValue(resourceName, reading, readingType)
 	if err != nil {
-		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s", deviceName, resourceName, err.Error()))
+		handler.logger.Error(
+			fmt.Sprintf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s",
+				deviceName, resourceName, err.Error()))
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}

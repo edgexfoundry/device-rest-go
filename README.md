@@ -19,7 +19,7 @@ This device service creates the additional parametrized `REST` endpoint:
 /api/v1/resource/{deviceName}/{resourceName}
 ```
 
-- `deviceName` refers to the `device` defined in one of the service's `device profiles`.
+- `deviceName` refers to a `device` managed by the REST device service.
 - `resourceName`refers to the `device resource` defined in the `device profile` associated with the given `deviceName` .
 
 The data, `text` or `binary`,  posted to this endpoint is type validated and type casted (text data only) to the type defined by the specified `device resource`. The resulting value is then sent into EdgeX via the Device SDK's `async values` channel. 
