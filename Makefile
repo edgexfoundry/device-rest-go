@@ -30,6 +30,9 @@ test:
 clean:
 	rm -f $(MICROSERVICES)
 
+update:
+	$(GO) mod download
+
 docker: $(DOCKERS)
 
 docker_device_rest_go:
