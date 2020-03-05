@@ -1,6 +1,6 @@
 module github.com/edgexfoundry/device-rest-go
 
-go 1.12
+go 1.13
 
 require (
 	github.com/edgexfoundry/device-sdk-go v1.1.2
