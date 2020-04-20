@@ -42,10 +42,9 @@ LABEL license='SPDX-License-Identifier: Apache-2.0' \
 
 LABEL Name=device-rest-go Version=${VERSION}
 
-COPY --from=builder /go/src/github.com/edgexfoundry/device-rest-go/Attribution.txt /
 COPY --from=builder /go/src/github.com/edgexfoundry/device-rest-go/LICENSE /
 COPY --from=builder /go/src/github.com/edgexfoundry/device-rest-go/cmd /
 
 EXPOSE 49986
 
-CMD ["/device-rest-go","--registry=consul://edgex-core-consul:8500","--profile=docker","--confdir=/res"]
+CMD ["/device-rest-go","--cp=consul://edgex-core-consul:8500","--confdir=/res","--registry"]

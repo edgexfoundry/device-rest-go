@@ -2,77 +2,77 @@
 LogLevel = 'DEBUG'
 
 [Service]
-Host = "localhost"
+BootTimeout = 30000
+CheckInterval = '10s'
+ClientMonitor = 15000
+Host = 'localhost'
 Port = 49986
+Protocol = 'http'
+StartupMsg = 'REST device started'
+Timeout = 5000
 ConnectRetries = 20
 Labels = []
-OpenMsg = "REST device started"
-Timeout = 5000
 EnableAsyncReadings = true
 AsyncBufferSize = 16
 
 [Registry]
-Host = "localhost"
+Host = 'localhost'
 Port = 8500
-Type = "consul"
-CheckInterval = "10s"
-FailLimit = 3
-FailWaitTime = 10
+Type = 'consul'
 
 [Clients]
   [Clients.Data]
-  Protocol = "http"
-  Host = "localhost"
+  Protocol = 'http'
+  Host = 'localhost'
   Port = 48080
-  Timeout = 5000
 
   [Clients.Metadata]
-  Protocol = "http"
-  Host = "localhost"
+  Protocol = 'http'
+  Host = 'localhost'
   Port = 48081
-  Timeout = 5000
 
   [Clients.Logging]
-  Protocol = "http"
-  Host = "localhost"
+  Protocol = 'http'
+  Host = 'localhost'
   Port = 48061
 
 [Device]
   DataTransform = true
-  InitCmd = ""
-  InitCmdArgs = ""
+  InitCmd = ''
+  InitCmdArgs = ''
   MaxCmdOps = 128
   MaxCmdValueLen = 256
-  RemoveCmd = ""
-  RemoveCmdArgs = ""
-  ProfilesDir = "./res"
+  RemoveCmd = ''
+  RemoveCmdArgs = ''
+  ProfilesDir = './res'
+  UpdateLastConnected = false
 
 # Driver configs
 [Driver]
 
 [Logging]
 EnableRemote = false
-File = "./device-rest-go.log"
+File = ''
 
 # Pre-define Devices
 [[DeviceList]]
-  Name = "sample-json"
-  Profile = "sample-json"
-  Description = "RESTful Device that sends in JSON data"
-  Labels = [ "rest", "json" ]
+  Name = 'sample-json'
+  Profile = 'sample-json'
+  Description = 'RESTful Device that sends in JSON data'
+  Labels = [ 'rest', 'json' ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
 [[DeviceList]]
-  Name = "sample-image"
-  Profile = "sample-image"
-  Description = "RESTful Device that sends in binary image data"
-  Labels = [ "rest", "binary", "image" ]
+  Name = 'sample-image'
+  Profile = 'sample-image'
+  Description = 'RESTful Device that sends in binary image data'
+  Labels = [ 'rest', 'binary', 'image' ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
 [[DeviceList]]
-  Name = "sample-numeric"
-  Profile = "sample-numeric"
-  Description = "RESTful Device that sends in numeric data"
-  Labels = [ "rest", "numeric", "float", "int" ]
+  Name = 'sample-numeric'
+  Profile = 'sample-numeric'
+  Description = 'RESTful Device that sends in numeric data'
+  Labels = [ 'rest', 'numeric', 'float', 'int' ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
