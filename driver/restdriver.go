@@ -32,7 +32,7 @@ type RestDriver struct {
 
 // Initialize performs protocol-specific initialization for the device
 // service.
-func (driver *RestDriver) Initialize(logger logger.LoggingClient, asyncValues chan<- *dsModels.AsyncValues) error {
+func (driver *RestDriver) Initialize(logger logger.LoggingClient, asyncValues chan<- *dsModels.AsyncValues, deviceCh chan<- []dsModels.DiscoveredDevice) error {
 	driver.logger = logger
 	handler := NewRestHandler(sdk.RunningService(), logger, asyncValues)
 	return handler.Start()
