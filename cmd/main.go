@@ -17,8 +17,8 @@
 package main
 
 import (
+	"github.com/edgexfoundry/device-rest-go"
 	"github.com/edgexfoundry/device-rest-go/driver"
-	"github.com/edgexfoundry/device-sdk-go"
 	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
 )
 
@@ -28,5 +28,5 @@ const (
 
 func main() {
 	sd := driver.RestDriver{}
-	startup.Bootstrap(serviceName, device.Version, &sd)
+	startup.Bootstrap(serviceName, device_rest.Version, &sd)
 }
