@@ -4,8 +4,8 @@ LogLevel = 'INFO'
 [Service]
 BootTimeout = 30000
 CheckInterval = '10s'
-ClientMonitor = 15000
 Host = 'localhost'
+ServerBindAddr = ''  # blank value defaults to Service.Host value
 Port = 49986
 Protocol = 'http'
 StartupMsg = 'REST device started'
