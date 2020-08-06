@@ -1,0 +1,101 @@
+name: edgex-device-rest
+base: core18
+type: app
+version: "replace-me"
+version-script: |
+  VERSION=$(shell cat ./VERSION 2>/dev/null || echo 0.0.0)
+  echo $VERSION-$(date +%Y%m%d)+$(git rev-parse --short HEAD)
+
+license: Apache-2.0
+title: EdgeX REST Device Service
+summary: EdgeX device service for REST protocol
+description: |
+  This device service provides easy way for 3'rd party applications, 
+  such as Point of Sale, CV Analytics, etc., to push data into EdgeX 
+  via the REST protocol.
+
+# delhi: 0, edinburgh: 1, fuji: 2, geneva: 3
+epoch: 3
+
+# TODO: add armhf here when that's supported
+architectures:
+  - build-on: arm64
+  - build-on: amd64
+
+grade: stable
+confinement: strict
+
+apps:
+  device-rest-go:
+    adapter: none
+    command: bin/device-rest-go $CONFIG_PRO_ARG $CONF_ARG $REGISTRY_ARG
+    daemon: simple
+    environment:
+      CONFIG_PRO_ARG: "--cp=consul://localhost:8500"
+      CONF_ARG: "--confdir=$SNAP_DATA/config/device-rest-go/res"
+      REGISTRY_ARG: "--registry"
+      DEVICE_PROFILESDIR: "$SNAP_DATA/config/device-rest-go/res"
+    plugs: [network, network-bind]
+
+parts:
+  go:
+    plugin: nil
+    source: snap/local
+    build-packages: [curl]
+    override-build: |
+      # use dpkg architecture to figure out our target arch
+      # note - we specifically don't use arch
+      case "$(dpkg --print-architecture)" in
+        amd64)
+          FILE_NAME=go1.13.5.linux-amd64.tar.gz
+          FILE_HASH=512103d7ad296467814a6e3f635631bd35574cab3369a97a323c9a585ccaa569
+          ;;
+        arm64)
+          FILE_NAME=go1.13.5.linux-arm64.tar.gz
+          FILE_HASH=227b718923e20c846460bbecddde9cb86bad73acc5fb6f8e1a96b81b5c84668b
+          ;;
+        armhf)
+          FILE_NAME=go1.13.5.linux-armv6l.tar.gz
+          FILE_HASH=26259f61d52ee2297b1e8feef3a0fc82144b666a2b95512402c31cc49713c133
+          ;;
+        i386)
+          FILE_NAME=go1.13.5.linux-386.tar.gz
+          FILE_HASH=3b830fa25f79ab08b476f02c84ea4125f41296b074017b492ac1ff748cf1c7c9
+          ;;
+      esac
+      # download the archive, failing on ssl cert problems
+      curl https://dl.google.com/go/$FILE_NAME -O
+      echo "$FILE_HASH $FILE_NAME" > sha256
+      sha256sum -c sha256 | grep OK
+      tar -C $SNAPCRAFT_STAGE -xf go*.tar.gz --strip-components=1
+    prime:
+      - "-*"
+
+  device-rest-go:
+    source: .
+    plugin: make
+    build-packages: [git]
+    after: [go]
+    override-build: |
+      cd $SNAPCRAFT_PART_SRC
+      make build
+
+      install -DT "./cmd/device-rest-go" "$SNAPCRAFT_PART_INSTALL/bin/device-rest-go"
+
+      install -d "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/"
+
+      cat "./cmd/res/configuration.toml" | \
+        sed -e s:\"./device-rest-go.log\":\'\$SNAP_COMMON/device-rest-go.log\': \
+        -e s:'ProfilesDir = \"./res\"':'ProfilesDir = \"\$SNAP_DATA/config/device-rest-go/res\"': > \
+        "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/configuration.toml"
+
+      for fpath in ./cmd/res/*.yaml; do
+          fname=$(basename "$fpath")
+          install -DT "./cmd/res/${fname}" \
+          "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/${fname}"
+      done
+
+      install -DT "./Attribution.txt" \
+         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest-go/Attribution.txt"
+      install -DT "./LICENSE" \
+         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest-go/LICENSE"
