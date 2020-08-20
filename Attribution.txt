@@ -25,9 +25,6 @@ https://github.com/go-logfmt/logfmt/blob/master/LICENSE
 google/uuid (BSD-3) https://github.com/google/uuid
 https://github.com/google/uuid/blob/master/LICENSE
 
-gorilla/context (BSD-3) https://github.com/gorilla/context
-https://github.com/gorilla/context/blob/master/LICENSE
-
 gorilla/mux 1.6.2 (BSD-3) https://github.com/gorilla/mux
 https://github.com/gorilla/mux/blob/master/LICENSE
 
@@ -84,9 +81,6 @@ https://github.com/go-yaml/yaml/blob/v2.2.2/LICENSE
 
 OneOfOne/xxhash (Apache 2.0) https://github.com/OneOfOne/xxhash
 https://github.com/OneOfOne/xxhash/blob/master/LICENSE
-
-jessevdk/go-flags (BSD-3) https://github.com/jessevdk/go-flags
-https://github.com/jessevdk/go-flags/blob/master/LICENSE
 
 hashicorp/consul/api (Mozilla Public License 2.0) https://github.com/hashicorp/consul/api
 https://github.com/hashicorp/consul/blob/master/LICENSE
