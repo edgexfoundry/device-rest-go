@@ -48,4 +48,5 @@ COPY --from=builder /go/src/github.com/edgexfoundry/device-rest-go/cmd /
 
 EXPOSE 49986
 
-CMD ["/device-rest-go","--cp=consul://edgex-core-consul:8500","--confdir=/res","--registry"]
+ENTRYPOINT ["/device-rest-go"]
+CMD ["--cp=consul://edgex-core-consul:8500", "--confdir=/res", "--registry"]
