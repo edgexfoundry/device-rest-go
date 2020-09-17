@@ -41,12 +41,12 @@ const (
 )
 
 type RestHandler struct {
-	service     *sdk.Service
+	service     *sdk.DeviceService
 	logger      logger.LoggingClient
 	asyncValues chan<- *models.AsyncValues
 }
 
-func NewRestHandler(service *sdk.Service, logger logger.LoggingClient, asyncValues chan<- *models.AsyncValues) *RestHandler {
+func NewRestHandler(service *sdk.DeviceService, logger logger.LoggingClient, asyncValues chan<- *models.AsyncValues) *RestHandler {
 	handler := RestHandler{
 		service:     service,
 		logger:      logger,

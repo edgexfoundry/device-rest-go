@@ -31,7 +31,7 @@ import (
 var handler *RestHandler
 
 func TestMain(m *testing.M) {
-	service := &sdk.Service{}
+	service := &sdk.DeviceService{}
 	logger := logger.NewClient("test", false, "./tests.log", "DEBUG")
 	asyncValues := make(chan<- *models.AsyncValues)
 
