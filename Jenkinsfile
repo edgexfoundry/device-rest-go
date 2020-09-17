@@ -15,6 +15,5 @@
 //
 
 edgeXBuildGoApp (
-    project: 'device-rest-go',
-    goVersion: '1.13'
+    project: 'device-rest-go'
 )
