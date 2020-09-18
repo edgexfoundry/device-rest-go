@@ -128,16 +128,17 @@ The best way to test this service with simulated data is to use **PostMan** to s
 
 Since `Commanding` is not implemented, specifying `AutoEvents` in the configuration will result in errors. Thus `AutoEvents` should not be specified in the configuration.
 
-## Installation and Execution
+## Build Instructions
 
-```bash
-make build
-make run
-```
+1. Clone the device-rest-go repo with the following command:
 
-## Build docker image
+        git clone https://github.com/edgexfoundry/device-rest-go.git
 
-```bash
-make docker
-```
+2. Build a docker image by using the following command:
+
+        make docker
+
+3. Alternatively the device service can be built natively:
+
+        make build
 
