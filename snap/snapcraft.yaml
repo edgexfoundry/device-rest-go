@@ -25,6 +25,8 @@ apps:
   device-rest-go:
     adapter: none
     command: bin/device-rest-go $CONFIG_PRO_ARG $CONF_ARG $REGISTRY_ARG
+    command-chain:
+      - bin/startup-env-var.sh
     daemon: simple
     environment:
       CONFIG_PRO_ARG: "--cp=consul://localhost:8500"
@@ -106,3 +108,7 @@ parts:
          "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest-go/Attribution.txt"
       install -DT "./LICENSE" \
          "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest-go/LICENSE"
+
+  config-common:
+    plugin: dump
+    source: snap/local/runtime-helpers
