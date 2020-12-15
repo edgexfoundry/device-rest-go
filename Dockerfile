@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-ARG BASE=golang:1.15-alpine
+ARG BASE=golang:1.15-alpine3.12
 FROM ${BASE} AS builder
 
 ARG MAKE='make build'
@@ -22,7 +22,7 @@ ARG ALPINE_PKG_BASE="make git"
 ARG ALPINE_PKG_EXTRA=""
 
 RUN sed -e 's/dl-cdn[.]alpinelinux.org/nl.alpinelinux.org/g' -i~ /etc/apk/repositories
-RUN apk add --no-cache ${ALPINE_PKG_BASE} ${ALPINE_PKG_EXTRA}
+RUN apk add --update --no-cache ${ALPINE_PKG_BASE} ${ALPINE_PKG_EXTRA}
 
 WORKDIR $GOPATH/src/github.com/edgexfoundry/device-rest-go
 
@@ -35,7 +35,7 @@ COPY . .
 
 RUN $MAKE
 
-FROM alpine:latest
+FROM alpine:3.12
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
   copyright='Copyright (c) 2019: Intel'
