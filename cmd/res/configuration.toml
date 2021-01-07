@@ -31,11 +31,6 @@ Type = 'consul'
   Host = 'localhost'
   Port = 48081
 
-  [Clients.Logging]
-  Protocol = 'http'
-  Host = 'localhost'
-  Port = 48061
-
 [Device]
   DataTransform = true
   InitCmd = ''
@@ -49,10 +44,6 @@ Type = 'consul'
 
 # Driver configs
 [Driver]
-
-[Logging]
-EnableRemote = false
-File = ''
 
 # Pre-define Devices
 [[DeviceList]]
