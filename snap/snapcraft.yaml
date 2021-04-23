@@ -83,7 +83,8 @@ parts:
   device-rest-go:
     source: .
     plugin: make
-    build-packages: [git]
+    build-packages: [git, libzmq3-dev, zip, pkg-config]
+    stage-packages: [libzmq5]
     after: [go]
     override-build: |
       cd $SNAPCRAFT_PART_SRC
@@ -95,13 +96,20 @@ parts:
 
       cat "./cmd/res/configuration.toml" | \
         sed -e s:\"./device-rest-go.log\":\'\$SNAP_COMMON/device-rest-go.log\': \
-        -e s:'ProfilesDir = \"./res\"':'ProfilesDir = \"\$SNAP_DATA/config/device-rest-go/res\"': > \
+        -e s:'ProfilesDir = \"./res/profiles"':'ProfilesDir = \"\$SNAP_DATA/config/device-rest-go/res/profiles\"': > \
+        -e s:'DevicesDir= \"./res/devices"':'DevicesDir = \"\$SNAP_DATA/config/device-rest-go/res/devices\"': > \
         "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/configuration.toml"
 
-      for fpath in ./cmd/res/*.yaml; do
+      for fpath in ./cmd/res/profiles/*.yaml; do
           fname=$(basename "$fpath")
-          install -DT "./cmd/res/${fname}" \
-          "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/${fname}"
+          install -DT "./cmd/res/profiles/${fname}" \
+          "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/profiles/${fname}"
+      done
+
+      for fpath in ./cmd/res/devices/*.toml; do
+          fname=$(basename "$fpath")
+          install -DT "./cmd/res/devices/${fname}" \
+          "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/devices/${fname}"
       done
 
       install -DT "./Attribution.txt" \

@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2020 Intel Corporation
+# Copyright (c) 2021 IOTech Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +18,7 @@
 ARG BASE=golang:1.15-alpine3.12
 FROM ${BASE}
 
-ARG ALPINE_PKG_BASE="make git"
+ARG ALPINE_PKG_BASE="make git openssh-client gcc libc-dev zeromq-dev libsodium-dev"
 ARG ALPINE_PKG_EXTRA=""
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
