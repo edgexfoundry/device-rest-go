@@ -19,7 +19,7 @@ package main
 import (
 	"github.com/edgexfoundry/device-rest-go"
 	"github.com/edgexfoundry/device-rest-go/driver"
-	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
+	"github.com/edgexfoundry/device-sdk-go/v2/pkg/startup"
 )
 
 const (

@@ -19,10 +19,10 @@ package driver
 import (
 	"fmt"
 
-	dsModels "github.com/edgexfoundry/device-sdk-go/pkg/models"
-	sdk "github.com/edgexfoundry/device-sdk-go/pkg/service"
-	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
-	contract "github.com/edgexfoundry/go-mod-core-contracts/models"
+	dsModels "github.com/edgexfoundry/device-sdk-go/v2/pkg/models"
+	sdk "github.com/edgexfoundry/device-sdk-go/v2/pkg/service"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients/logger"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/v2/models"
 )
 
 type RestDriver struct {
@@ -39,7 +39,7 @@ func (driver *RestDriver) Initialize(logger logger.LoggingClient, asyncValues ch
 }
 
 // HandleReadCommands triggers a protocol Read operation for the specified device.
-func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[string]contract.ProtocolProperties, reqs []dsModels.CommandRequest) ([]*dsModels.CommandValue, error) {
+func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[string]models.ProtocolProperties, reqs []dsModels.CommandRequest) ([]*dsModels.CommandValue, error) {
 	return nil, fmt.Errorf("RestDriver.HandleReadCommands; read commands not supported")
 }
 
@@ -47,7 +47,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 // a ResourceOperation for a specific device resource.
 // Since the commands are actuation commands, params provide parameters for the individual
 // command.
-func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[string]contract.ProtocolProperties, reqs []dsModels.CommandRequest,
+func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[string]models.ProtocolProperties, reqs []dsModels.CommandRequest,
 	params []*dsModels.CommandValue) error {
 
 	return fmt.Errorf("RestDriver.HandleWriteCommands; write commands not supported")
@@ -58,14 +58,14 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 // for closing any in-use channels, including the channel used to send async
 // readings (if supported).
 func (driver *RestDriver) Stop(force bool) error {
-	driver.logger.Debug(fmt.Sprintf("RestDriver.Stop called: force=%v", force))
+	driver.logger.Debugf("RestDriver.Stop called: force=%v", force)
 	// Nothing required to do for Stop
 	return nil
 }
 
 // AddDevice is a callback function that is invoked
 // when a new Device associated with this Device Service is added
-func (driver *RestDriver) AddDevice(deviceName string, protocols map[string]contract.ProtocolProperties, adminState contract.AdminState) error {
+func (driver *RestDriver) AddDevice(deviceName string, protocols map[string]models.ProtocolProperties, adminState models.AdminState) error {
 	// Nothing required to do for AddDevice since new devices will be available
 	// when data is posted to REST endpoint
 	return nil
@@ -73,7 +73,7 @@ func (driver *RestDriver) AddDevice(deviceName string, protocols map[string]cont
 
 // UpdateDevice is a callback function that is invoked
 // when a Device associated with this Device Service is updated
-func (driver *RestDriver) UpdateDevice(deviceName string, protocols map[string]contract.ProtocolProperties, adminState contract.AdminState) error {
+func (driver *RestDriver) UpdateDevice(deviceName string, protocols map[string]models.ProtocolProperties, adminState models.AdminState) error {
 	// Nothing required to do for UpdateDevice since device update will be available
 	// when data is posted to REST endpoint.
 	return nil
@@ -81,7 +81,7 @@ func (driver *RestDriver) UpdateDevice(deviceName string, protocols map[string]c
 
 // RemoveDevice is a callback function that is invoked
 // when a Device associated with this Device Service is removed
-func (driver *RestDriver) RemoveDevice(deviceName string, protocols map[string]contract.ProtocolProperties) error {
+func (driver *RestDriver) RemoveDevice(deviceName string, protocols map[string]models.ProtocolProperties) error {
 	// Nothing required to do for RemoveDevice since removed device will no longer be available
 	// when data is posted to REST endpoint.
 	return nil

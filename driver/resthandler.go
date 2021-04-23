@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2019 Intel Corporation
+// Copyright (c) 2021 IOTech Ltd
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,19 +25,17 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/edgexfoundry/device-sdk-go/v2/pkg/models"
+	sdk "github.com/edgexfoundry/device-sdk-go/v2/pkg/service"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients/logger"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/v2"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
-
-	"github.com/edgexfoundry/device-sdk-go/pkg/models"
-	sdk "github.com/edgexfoundry/device-sdk-go/pkg/service"
-	"github.com/edgexfoundry/go-mod-core-contracts/clients"
-	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
 )
 
 const (
-	deviceNameKey     = "deviceName"
-	resourceNameKey   = "resourceName"
-	apiResourceRoute  = clients.ApiBase + "/resource/{" + deviceNameKey + "}/{" + resourceNameKey + "}"
+	apiResourceRoute  = v2.ApiBase + "/resource/{" + v2.DeviceName + "}/{" + v2.ResourceName + "}"
 	handlerContextKey = "RestHandler"
 )
 
@@ -61,7 +60,7 @@ func (handler RestHandler) Start() error {
 		return fmt.Errorf("unable to add required route: %s: %s", apiResourceRoute, err.Error())
 	}
 
-	handler.logger.Info(fmt.Sprintf("Route %s added.", apiResourceRoute))
+	handler.logger.Infof("Route %s added.", apiResourceRoute)
 
 	return nil
 }
@@ -76,34 +75,34 @@ func (handler RestHandler) addContext(next func(http.ResponseWriter, *http.Reque
 
 func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
-	deviceName := vars[deviceNameKey]
-	resourceName := vars[resourceNameKey]
+	deviceName := vars[v2.DeviceName]
+	resourceName := vars[v2.ResourceName]
 
-	handler.logger.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
+	handler.logger.Debugf("Received POST for Device=%s Resource=%s", deviceName, resourceName)
 
 	_, err := handler.service.GetDeviceByName(deviceName)
 	if err != nil {
-		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
+		handler.logger.Errorf("Incoming reading ignored. Device '%s' not found", deviceName)
 		http.Error(writer, fmt.Sprintf("Device '%s' not found", deviceName), http.StatusNotFound)
 		return
 	}
 
-	deviceResource, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
+	deviceResource, ok := handler.service.DeviceResource(deviceName, resourceName)
 	if !ok {
-		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
+		handler.logger.Errorf("Incoming reading ignored. Resource '%s' not found", resourceName)
 		http.Error(writer, fmt.Sprintf("Resource '%s' not found", resourceName), http.StatusNotFound)
 		return
 	}
 
-	if deviceResource.Properties.Value.MediaType != "" {
+	if deviceResource.Properties.MediaType != "" {
 		contentType := request.Header.Get(clients.ContentType)
 
-		handler.logger.Debug(fmt.Sprintf("Content Type is '%s' & Media Type is '%s' and Type is '%s'",
-			contentType, deviceResource.Properties.Value.MediaType, deviceResource.Properties.Value.Type))
+		handler.logger.Debugf("Content Type is '%s' & Media Type is '%s' and Type is '%s'",
+			contentType, deviceResource.Properties.MediaType, deviceResource.Properties.ValueType)
 
-		if contentType != deviceResource.Properties.Value.MediaType {
-			handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Content Type '%s' doesn't match %s resource's Media Type '%s'",
-				contentType, resourceName, deviceResource.Properties.Value.MediaType))
+		if contentType != deviceResource.Properties.MediaType {
+			handler.logger.Errorf("Incoming reading ignored. Content Type '%s' doesn't match %s resource's Media Type '%s'",
+				contentType, resourceName, deviceResource.Properties.MediaType)
 
 			http.Error(writer, "Wrong Content-Type", http.StatusBadRequest)
 			return
@@ -111,25 +110,22 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 	}
 
 	var reading interface{}
-	readingType := models.ParseValueType(deviceResource.Properties.Value.Type)
-
-	if readingType == models.Binary {
+	if deviceResource.Properties.ValueType == v2.ValueTypeBinary {
 		reading, err = handler.readBodyAsBinary(writer, request)
 	} else {
 		reading, err = handler.readBodyAsString(writer, request)
 	}
 
 	if err != nil {
-		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Unable to read request body: %s", err.Error()))
+		handler.logger.Errorf("Incoming reading ignored. Unable to read request body: %s", err.Error())
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	value, err := handler.newCommandValue(resourceName, reading, readingType)
+	value, err := handler.newCommandValue(resourceName, reading, deviceResource.Properties.ValueType)
 	if err != nil {
-		handler.logger.Error(
-			fmt.Sprintf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s",
-				deviceName, resourceName, err.Error()))
+		handler.logger.Errorf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s",
+			deviceName, resourceName, err.Error())
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -139,7 +135,7 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 		CommandValues: []*models.CommandValue{value},
 	}
 
-	handler.logger.Debug(fmt.Sprintf("Incoming reading received: Device=%s Resource=%s", deviceName, resourceName))
+	handler.logger.Debugf("Incoming reading received: Device=%s Resource=%s", deviceName, resourceName)
 
 	handler.asyncValues <- asyncValues
 }
@@ -183,10 +179,9 @@ func deviceHandler(writer http.ResponseWriter, request *http.Request) {
 	handler.processAsyncRequest(writer, request)
 }
 
-func (handler RestHandler) newCommandValue(resourceName string, reading interface{}, valueType models.ValueType) (*models.CommandValue, error) {
-	var result = &models.CommandValue{}
+func (handler RestHandler) newCommandValue(resourceName string, reading interface{}, valueType string) (*models.CommandValue, error) {
 	var err error
-	var timestamp = time.Now().UnixNano()
+	var result = &models.CommandValue{}
 	castError := "fail to parse %v reading, %v"
 
 	if !checkValueInRange(valueType, reading) {
@@ -195,125 +190,107 @@ func (handler RestHandler) newCommandValue(resourceName string, reading interfac
 		return result, err
 	}
 
+	var val interface{}
 	switch valueType {
-	case models.Binary:
-		val, ok := reading.([]byte)
+	case v2.ValueTypeBinary:
+		var ok bool
+		val, ok = reading.([]byte)
 		if !ok {
 			return nil, fmt.Errorf(castError, resourceName, "not []byte")
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Bool:
-		val, err := cast.ToBoolE(reading)
+	case v2.ValueTypeBool:
+		val, err = cast.ToBoolE(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.String:
-		val, err := cast.ToStringE(reading)
+	case v2.ValueTypeString:
+		val, err = cast.ToStringE(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Uint8:
-		val, err := cast.ToUint8E(reading)
+	case v2.ValueTypeUint8:
+		val, err = cast.ToUint8E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Uint16:
-		val, err := cast.ToUint16E(reading)
+	case v2.ValueTypeUint16:
+		val, err = cast.ToUint16E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Uint32:
-		val, err := cast.ToUint32E(reading)
+	case v2.ValueTypeUint32:
+		val, err = cast.ToUint32E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Uint64:
-		val, err := cast.ToUint64E(reading)
+	case v2.ValueTypeUint64:
+		val, err = cast.ToUint64E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Int8:
-		val, err := cast.ToInt8E(reading)
+	case v2.ValueTypeInt8:
+		val, err = cast.ToInt8E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Int16:
-		val, err := cast.ToInt16E(reading)
+	case v2.ValueTypeInt16:
+		val, err = cast.ToInt16E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Int32:
-		val, err := cast.ToInt32E(reading)
+	case v2.ValueTypeInt32:
+		val, err = cast.ToInt32E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Int64:
-		val, err := cast.ToInt64E(reading)
+	case v2.ValueTypeInt64:
+		val, err = cast.ToInt64E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Float32:
-		val, err := cast.ToFloat32E(reading)
+	case v2.ValueTypeFloat32:
+		val, err = cast.ToFloat32E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
-	case models.Float64:
-		val, err := cast.ToFloat64E(reading)
+	case v2.ValueTypeFloat64:
+		val, err = cast.ToFloat64E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-		result, err = models.NewCommandValue(resourceName, timestamp, val, valueType)
-
 	default:
 		err = fmt.Errorf("return result fail, none supported value type: %v", valueType)
 	}
 
-	return result, err
+	result, err = models.NewCommandValue(resourceName, valueType, val)
+	if err != nil {
+		return nil, err
+	}
+
+	result.Origin = time.Now().UnixNano()
+	return result, nil
 }
 
-func checkValueInRange(valueType models.ValueType, reading interface{}) bool {
+func checkValueInRange(valueType string, reading interface{}) bool {
 	isValid := false
 
-	if valueType == models.String || valueType == models.Bool || valueType == models.Binary {
+	if valueType == v2.ValueTypeString || valueType == v2.ValueTypeBool || valueType == v2.ValueTypeBinary {
 		return true
 	}
 
-	if valueType == models.Int8 || valueType == models.Int16 ||
-		valueType == models.Int32 || valueType == models.Int64 {
+	if valueType == v2.ValueTypeInt8 || valueType == v2.ValueTypeInt16 ||
+		valueType == v2.ValueTypeInt32 || valueType == v2.ValueTypeInt64 {
 		val := cast.ToInt64(reading)
 		isValid = checkIntValueRange(valueType, val)
 	}
 
-	if valueType == models.Uint8 || valueType == models.Uint16 ||
-		valueType == models.Uint32 || valueType == models.Uint64 {
+	if valueType == v2.ValueTypeUint8 || valueType == v2.ValueTypeUint16 ||
+		valueType == v2.ValueTypeUint32 || valueType == v2.ValueTypeUint64 {
 		val := cast.ToUint64(reading)
 		isValid = checkUintValueRange(valueType, val)
 	}
 
-	if valueType == models.Float32 || valueType == models.Float64 {
+	if valueType == v2.ValueTypeFloat32 || valueType == v2.ValueTypeFloat64 {
 		val := cast.ToFloat64(reading)
 		isValid = checkFloatValueRange(valueType, val)
 	}
@@ -321,22 +298,22 @@ func checkValueInRange(valueType models.ValueType, reading interface{}) bool {
 	return isValid
 }
 
-func checkUintValueRange(valueType models.ValueType, val uint64) bool {
+func checkUintValueRange(valueType string, val uint64) bool {
 	var isValid = false
 	switch valueType {
-	case models.Uint8:
+	case v2.ValueTypeUint8:
 		if val >= 0 && val <= math.MaxUint8 {
 			isValid = true
 		}
-	case models.Uint16:
+	case v2.ValueTypeUint16:
 		if val >= 0 && val <= math.MaxUint16 {
 			isValid = true
 		}
-	case models.Uint32:
+	case v2.ValueTypeUint32:
 		if val >= 0 && val <= math.MaxUint32 {
 			isValid = true
 		}
-	case models.Uint64:
+	case v2.ValueTypeUint64:
 		maxiMum := uint64(math.MaxUint64)
 		if val >= 0 && val <= maxiMum {
 			isValid = true
@@ -345,22 +322,22 @@ func checkUintValueRange(valueType models.ValueType, val uint64) bool {
 	return isValid
 }
 
-func checkIntValueRange(valueType models.ValueType, val int64) bool {
+func checkIntValueRange(valueType string, val int64) bool {
 	var isValid = false
 	switch valueType {
-	case models.Int8:
+	case v2.ValueTypeInt8:
 		if val >= math.MinInt8 && val <= math.MaxInt8 {
 			isValid = true
 		}
-	case models.Int16:
+	case v2.ValueTypeInt16:
 		if val >= math.MinInt16 && val <= math.MaxInt16 {
 			isValid = true
 		}
-	case models.Int32:
+	case v2.ValueTypeInt32:
 		if val >= math.MinInt32 && val <= math.MaxInt32 {
 			isValid = true
 		}
-	case models.Int64:
+	case v2.ValueTypeInt64:
 		if val >= math.MinInt64 && val <= math.MaxInt64 {
 			isValid = true
 		}
@@ -368,14 +345,14 @@ func checkIntValueRange(valueType models.ValueType, val int64) bool {
 	return isValid
 }
 
-func checkFloatValueRange(valueType models.ValueType, val float64) bool {
+func checkFloatValueRange(valueType string, val float64) bool {
 	var isValid = false
 	switch valueType {
-	case models.Float32:
+	case v2.ValueTypeFloat32:
 		if math.Abs(val) >= math.SmallestNonzeroFloat32 && math.Abs(val) <= math.MaxFloat32 {
 			isValid = true
 		}
-	case models.Float64:
+	case v2.ValueTypeFloat64:
 		if math.Abs(val) >= math.SmallestNonzeroFloat64 && math.Abs(val) <= math.MaxFloat64 {
 			isValid = true
 		}

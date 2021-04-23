@@ -1,0 +1,24 @@
+name: "sample-numeric"
+manufacturer: "Intel Corp."
+model: "Some 3rd party App sending int & floats"
+labels:
+ - "rest"
+ - "float64"
+ - "int64"
+description: "REST Device that sends in int and float"
+
+deviceResources:
+  - name: int
+    isHidden: true
+    description: "Int64 value"
+    properties:
+      valueType: "Int64"
+      readWrite: "W"
+      mediaType: "text/plain"
+  - name: float
+    isHidden: true
+    description: "Float64 value"
+    properties:
+      valueType: "Float64"
+      readWrite: "W"
+      mediaType: "text/plain"

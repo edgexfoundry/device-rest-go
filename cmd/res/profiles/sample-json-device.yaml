@@ -8,14 +8,9 @@ description: "REST Device that sends in Json"
 
 deviceResources:
   - name: json
+    isHidden: true
     description: "JSON message"
     properties:
-      value:
-        { type: "String", readWrite: "W" , mediaType : "application/json" }
-      units:
-        { type: "String", readWrite: "R" }
-
-deviceCommands:
-  - name: PostJson
-    get:
-      - { operation: "get", deviceResource: "json"}
+      valueType: "String"
+      readWrite: "W"
+      mediaType: "application/json"
