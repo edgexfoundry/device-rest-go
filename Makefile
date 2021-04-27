@@ -1,6 +1,7 @@
 .PHONY: build test clean prepare update docker
 
-GO = CGO_ENABLED=0 GO111MODULE=on go
+GO=CGO_ENABLED=0 GO111MODULE=on go
+GOCGO=CGO_ENABLED=1 GO111MODULE=on go
 
 MICROSERVICES=cmd/device-rest-go
 
@@ -17,11 +18,11 @@ GOFLAGS=-ldflags "-X github.com/edgexfoundry/device-rest-go.Version=$(VERSION)"
 build: $(MICROSERVICES)
 
 cmd/device-rest-go:
-	$(GO) build $(GOFLAGS) -o $@ ./cmd
+	$(GOCGO) build $(GOFLAGS) -o $@ ./cmd
 
 test:
-	$(GO) test -coverprofile=coverage.out ./...
-	$(GO) vet ./...
+	$(GOCGO) test -coverprofile=coverage.out ./...
+	$(GOCGO) vet ./...
 	gofmt -l .
 	[ "`gofmt -l .`" = "" ]
 	./bin/test-go-mod-tidy.sh

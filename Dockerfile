@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2020 Intel Corporation
+# Copyright (c) 2021 IOTech Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,20 +19,17 @@ ARG BASE=golang:1.15-alpine3.12
 FROM ${BASE} AS builder
 
 ARG MAKE='make build'
-ARG ALPINE_PKG_BASE="make git"
+ARG ALPINE_PKG_BASE="make git openssh-client gcc libc-dev zeromq-dev libsodium-dev"
 ARG ALPINE_PKG_EXTRA=""
 
 RUN sed -e 's/dl-cdn[.]alpinelinux.org/nl.alpinelinux.org/g' -i~ /etc/apk/repositories
 RUN apk add --update --no-cache ${ALPINE_PKG_BASE} ${ALPINE_PKG_EXTRA}
 
-WORKDIR $GOPATH/src/github.com/edgexfoundry/device-rest-go
-
-COPY go.mod .
-COPY Makefile .
-
-RUN make update
+WORKDIR /device-rest-go
 
 COPY . .
+
+RUN make update
 
 RUN $MAKE
 
@@ -42,9 +40,12 @@ LABEL license='SPDX-License-Identifier: Apache-2.0' \
 
 LABEL Name=device-rest-go Version=${VERSION}
 
-COPY --from=builder /go/src/github.com/edgexfoundry/device-rest-go/LICENSE /
-COPY --from=builder /go/src/github.com/edgexfoundry/device-rest-go/Attribution.txt /
-COPY --from=builder /go/src/github.com/edgexfoundry/device-rest-go/cmd /
+# dumb-init needed for injected secure bootstrapping entrypoint script when run in secure mode.
+RUN apk add --update --no-cache zeromq dumb-init
+
+COPY --from=builder /device-rest-go/cmd /
+COPY --from=builder /device-rest-go/LICENSE /
+COPY --from=builder /device-rest-go/Attribution.txt /
 
 EXPOSE 49986
 

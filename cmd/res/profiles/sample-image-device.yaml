@@ -1,0 +1,23 @@
+name: "sample-image"
+manufacturer: "Intel Corp."
+model: "Some 3rd party app sending binary image"
+labels:
+ - "rest"
+ - "binary"
+description: "REST Device that sends in binary image"
+
+deviceResources:
+  - name: jpeg
+    isHidden: true
+    description: "JPEG Image binary message"
+    properties:
+      valueType: "Binary"
+      readWrite: "W"
+      mediaType: "image/jpeg"
+  - name: png
+    isHidden: true
+    description: "PNG Image binary message"
+    properties:
+      valueType: "Binary"
+      readWrite: "W"
+      mediaType: "image/png"

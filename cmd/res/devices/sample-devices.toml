@@ -1,0 +1,22 @@
+# Pre-define Devices
+[[DeviceList]]
+  Name = 'sample-json'
+  ProfileName = 'sample-json'
+  Description = 'RESTful Device that sends in JSON data'
+  Labels = [ 'rest', 'json' ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]
+[[DeviceList]]
+  Name = 'sample-image'
+  ProfileName = 'sample-image'
+  Description = 'RESTful Device that sends in binary image data'
+  Labels = [ 'rest', 'binary', 'image' ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]
+[[DeviceList]]
+  Name = 'sample-numeric'
+  ProfileName = 'sample-numeric'
+  Description = 'RESTful Device that sends in numeric data'
+  Labels = [ 'rest', 'numeric', 'float', 'int' ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]

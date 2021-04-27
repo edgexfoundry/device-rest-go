@@ -10,7 +10,7 @@ The current implementation is meant for one-way communication into EdgeX via asy
 ## Runtime Prerequisite    
 
 - core-data
-  - Mongo or Redis DB
+  - Redis DB
 - core-metadata
 
 ## REST Endpoints
@@ -18,7 +18,7 @@ The current implementation is meant for one-way communication into EdgeX via asy
 This device service creates the additional parametrized `REST` endpoint:
 
 ```
-/api/v1/resource/{deviceName}/{resourceName}
+/api/v2/resource/{deviceName}/{resourceName}
 ```
 
 - `deviceName` refers to a `device` managed by the REST device service.
@@ -39,21 +39,21 @@ The `DeviceList` configuration is standard except that the `DeviceList.Protocols
 ```toml
 [[DeviceList]]
   Name = "sample-json"
-  Profile = "sample-json"
+  ProfileName = "sample-json"
   Description = "RESTful Device that sends in JSON data"
   Labels = [ "rest", "json" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
 [[DeviceList]]
   Name = "sample-image"
-  Profile = "sample-image"
+  ProfileName = "sample-image"
   Description = "RESTful Device that sends in binary image data"
   Labels = [ "rest", "binary", "image" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]    
 [[DeviceList]]
   Name = "sample-numeric"
-  Profile = "sample-numeric"
+  ProfileName = "sample-numeric"
   Description = "RESTful Device that sends in numeric data"
   Labels = [ "rest", "numeric", "float", "int" ]
   [DeviceList.Protocols]
@@ -64,31 +64,29 @@ The `DeviceList` configuration is standard except that the `DeviceList.Protocols
 
 As with all device services the `device profile` is where the **Device Name**, **Device Resources** and **Device Commands** are define. The parameterized REST endpoint described above references these definitions. Each `Device` has it's own device profile. There are three sample device profiles that define the devices referenced in the above sample configuration.
 
-- **[sample-image-device](./cmd/res/)**
-- [**sample-json-device**](./cmd/res/sample-json-device.yaml)
-- [**sample-numeric-device**](cmd/res/sample-numeric-device.yaml)
+- [**sample-image-device**](cmd/res/profiles/sample-image-device.yaml)
+- [**sample-json-device**](cmd/res/profiles/sample-json-device.yaml)
+- [**sample-numeric-device**](cmd/res/profiles/sample-numeric-device.yaml)
 
-> *Note: The`coreCommands` section is omitted since this device service does not support Commanding.* 
-
-> *Note: The `deviceCommands` section only requires the `get` operations.*
+> *Note: The`isHidden` field is set to true since this device service does not support Commanding.* 
 
 ## Testing/Simulation
 
 The best way to test this service with simulated data is to use **PostMan** to send data to the following endpoints defined for the above device profiles.
 
-- http://localhost:49986/api/v1/resource/sample-image/jpeg
+- http://localhost:49986/api/v2/resource/sample-image/jpeg
 
   - POSTing a JPEG binary image file will result in the `BinaryValue` of the `Reading` being set to the JPEG image data posted.
   - Example test JPEG to post:
     - Select any JPEG file from your computer or the internet
 
-- http://localhost:49986/api/v1/resource/sample-image/png
+- http://localhost:49986/api/v2/resource/sample-image/png
 
   - POSTing a PNG binary image file will result in the `BinaryValue` of the `Reading` being set to the PNG image data posted.
   - Example test PNG to post:
     - Select any PNG file from your computer or the internet
 
-- http://localhost:49986/api/v1/resource/sample-json/json
+- http://localhost:49986/api/v2/resource/sample-json/json
 
   - POSTing a JSON string value will result in the  `Value` of the `Reading` being set to the JSON string value posted.
 
@@ -98,16 +96,16 @@ The best way to test this service with simulated data is to use **PostMan** to s
 
     ```json
     {
-    	"id" : "1234",
+        "id" : "1234",
         "name" : "test data",
         "payload" : "test payload"
     }
     ```
 
-- http://localhost:49986/api/v1/resource/sample-numeric/int
+- http://localhost:49986/api/v2/resource/sample-numeric/int
   - POSTing a text integer value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Int64`. The POSTed value is verified to be a valid `Int64` value. 
   
-  - A 400 error will be retuned if the POSted value fails the `Int64` type verification.
+  - A 400 error will be returned if the POSTed value fails the `Int64` type verification.
   
   - Example test `int` value to post:
   
@@ -115,10 +113,10 @@ The best way to test this service with simulated data is to use **PostMan** to s
     1001
     ```
   
-- http://localhost:49986/api/v1/resource/sample-numeric/float
+- http://localhost:49986/api/v2/resource/sample-numeric/float
   - POSTing a text float value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Float64`. The POSTed value is verified to be a valid `Float64` value. 
   
-  - A 400 error will be retuned if the POSted value fails the `Float64` type verification.
+  - A 400 error will be returned if the POSTed value fails the `Float64` type verification.
   
   - Example test `float` value to post:
   
