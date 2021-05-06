@@ -41,6 +41,6 @@ docker_device_rest_go:
         --build-arg http_proxy \
         --build-arg https_proxy \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/docker-device-rest-go:$(GIT_SHA) \
-		-t edgexfoundry/docker-device-rest-go:$(VERSION)-dev \
+		-t edgexfoundry/device-rest:$(GIT_SHA) \
+		-t edgexfoundry/device-rest:$(VERSION)-dev \
 		.
