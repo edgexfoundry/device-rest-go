@@ -18,6 +18,7 @@ GOFLAGS=-ldflags "-X github.com/edgexfoundry/device-rest-go.Version=$(VERSION)"
 build: $(MICROSERVICES)
 
 cmd/device-rest-go:
+	go mod tidy
 	$(GOCGO) build $(GOFLAGS) -o $@ ./cmd
 
 test:
