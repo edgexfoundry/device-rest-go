@@ -20,8 +20,9 @@ if [ ! -f "$SNAP_DATA/config/device-rest-go/res/configuration.toml" ]; then
 fi
 
 # also copy the device profiles into $SNAP_DATA
+mkdir -p "$SNAP_DATA/config/device-rest-go/res/profiles"
 find "$SNAP/config/device-rest-go/res/profiles/" -type f -print | grep .yaml | \
-    while read line; do
+     while read line; do
         fname=$(basename "$line")
         if [ ! -f "$SNAP_DATA/config/device-rest-go/res/profiles/${fname}" ]; then
             cp "$SNAP/config/device-rest-go/res/profiles/${fname}" \
@@ -30,7 +31,9 @@ find "$SNAP/config/device-rest-go/res/profiles/" -type f -print | grep .yaml | \
     done
 
 # also copy the device into $SNAP_DATA
+mkdir -p "$SNAP_DATA/config/device-rest-go/res/devices"
 find "$SNAP/config/device-rest-go/res/devices/" -type f -print | grep .toml | \
+
     while read line; do
         fname=$(basename "$line")
         if [ ! -f "$SNAP_DATA/config/device-rest-go/res/devices/${fname}" ]; then

@@ -64,9 +64,9 @@ parts:
       install -d "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/"
 
       cat "./cmd/res/configuration.toml" | \
-        sed -e s:\"./device-rest-go.log\":\'\$SNAP_COMMON/device-rest-go.log\': \
-        -e s:'ProfilesDir = \"./res/profiles"':'ProfilesDir = \"\$SNAP_DATA/config/device-rest-go/res/profiles\"': > \
-        -e s:'DevicesDir= \"./res/devices"':'DevicesDir = \"\$SNAP_DATA/config/device-rest-go/res/devices\"': > \
+        sed -e s:"'./device-rest-go.log'":"'\$SNAP_COMMON/device-rest-go.log'": \
+        -e s:"ProfilesDir = './res/profiles'":"ProfilesDir = '\$SNAP_DATA/config/device-rest-go/res/profiles'":  \
+        -e s:"DevicesDir = './res/devices'":"DevicesDir = '\$SNAP_DATA/config/device-rest-go/res/devices'": > \
         "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/configuration.toml"
 
       for fpath in ./cmd/res/profiles/*.yaml; do
