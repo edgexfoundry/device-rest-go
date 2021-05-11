@@ -10,8 +10,8 @@ description: |
   such as Point of Sale, CV Analytics, etc., to push data into EdgeX 
   via the REST protocol.
 
-# delhi: 0, edinburgh: 1, fuji: 2, geneva: 3
-epoch: 3
+# delhi: 0, edinburgh: 1, fuji: 2, geneva: 3, ireland: 4
+epoch: 4
 
 # TODO: add armhf here when that's supported
 architectures:
