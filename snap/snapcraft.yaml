@@ -57,6 +57,7 @@ parts:
     stage-packages: [libzmq5]
     override-build: |
       cd $SNAPCRAFT_PART_SRC
+      go mod tidy
       make build
 
       install -DT "./cmd/device-rest-go" "$SNAPCRAFT_PART_INSTALL/bin/device-rest-go"
