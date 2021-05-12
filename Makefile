@@ -3,7 +3,7 @@
 GO=CGO_ENABLED=0 GO111MODULE=on go
 GOCGO=CGO_ENABLED=1 GO111MODULE=on go
 
-MICROSERVICES=cmd/device-rest-go
+MICROSERVICES=cmd/device-rest
 
 .PHONY: $(MICROSERVICES)
 
@@ -17,7 +17,7 @@ GOFLAGS=-ldflags "-X github.com/edgexfoundry/device-rest-go.Version=$(VERSION)"
 
 build: $(MICROSERVICES)
 
-cmd/device-rest-go:
+cmd/device-rest:
 	go mod tidy
 	$(GOCGO) build $(GOFLAGS) -o $@ ./cmd
 
