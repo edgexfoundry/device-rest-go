@@ -29,6 +29,7 @@ WORKDIR /device-rest-go
 
 COPY . .
 
+RUN go mod tidy
 RUN make update
 
 RUN $MAKE
