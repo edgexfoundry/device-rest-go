@@ -29,6 +29,7 @@ WORKDIR /device-rest-go
 
 COPY . .
 
+RUN go mod tidy
 RUN make update
 
 RUN $MAKE
@@ -49,5 +50,5 @@ COPY --from=builder /device-rest-go/Attribution.txt /
 
 EXPOSE 49986
 
-ENTRYPOINT ["/device-rest-go"]
+ENTRYPOINT ["/device-rest"]
 CMD ["--cp=consul://edgex-core-consul:8500", "--confdir=/res", "--registry"]

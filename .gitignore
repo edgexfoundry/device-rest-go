@@ -15,7 +15,7 @@
 
 .idea/
 vendor/
-cmd/device-rest-go
+cmd/device-rest
 glide.lock
 go.sum
 

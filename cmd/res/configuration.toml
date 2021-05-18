@@ -29,12 +29,12 @@ Port = 8500
 Type = 'consul'
 
 [Clients]
-  [Clients.edgex-core-data]
+  [Clients.core-data]
   Protocol = 'http'
   Host = 'localhost'
   Port = 48080
 
-  [Clients.edgex-core-metadata]
+  [Clients.core-metadata]
   Protocol = 'http'
   Host = 'localhost'
   Port = 48081
@@ -63,11 +63,11 @@ PublishTopicPrefix = 'edgex/events' # /<device-profile-name>/<device-name>/<sour
 Type = 'vault'
 Host = 'localhost'
 Port = 8200
-Path = '/v1/secret/edgex/edgex-device-rest/'
+Path = '/v1/secret/edgex/device-rest/'
 Protocol = 'http'
 RootCaCertPath = ''
 ServerName = ''
-TokenFile = '/tmp/edgex/secrets/edgex-device-rest/secrets-token.json'
+TokenFile = '/tmp/edgex/secrets/device-rest/secrets-token.json'
 AdditionalRetryAttempts = 10
 RetryWaitPeriod = "1s"
   [SecretStore.Authentication]
