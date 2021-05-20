@@ -74,19 +74,19 @@ As with all device services the `device profile` is where the **Device Name**, *
 
 The best way to test this service with simulated data is to use **PostMan** to send data to the following endpoints defined for the above device profiles.
 
-- http://localhost:49986/api/v2/resource/sample-image/jpeg
+- http://localhost:59986/api/v2/resource/sample-image/jpeg
 
   - POSTing a JPEG binary image file will result in the `BinaryValue` of the `Reading` being set to the JPEG image data posted.
   - Example test JPEG to post:
     - Select any JPEG file from your computer or the internet
 
-- http://localhost:49986/api/v2/resource/sample-image/png
+- http://localhost:59986/api/v2/resource/sample-image/png
 
   - POSTing a PNG binary image file will result in the `BinaryValue` of the `Reading` being set to the PNG image data posted.
   - Example test PNG to post:
     - Select any PNG file from your computer or the internet
 
-- http://localhost:49986/api/v2/resource/sample-json/json
+- http://localhost:59986/api/v2/resource/sample-json/json
 
   - POSTing a JSON string value will result in the  `Value` of the `Reading` being set to the JSON string value posted.
 
@@ -102,7 +102,7 @@ The best way to test this service with simulated data is to use **PostMan** to s
     }
     ```
 
-- http://localhost:49986/api/v2/resource/sample-numeric/int
+- http://localhost:59986/api/v2/resource/sample-numeric/int
   - POSTing a text integer value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Int64`. The POSTed value is verified to be a valid `Int64` value. 
   
   - A 400 error will be returned if the POSTed value fails the `Int64` type verification.
@@ -113,7 +113,7 @@ The best way to test this service with simulated data is to use **PostMan** to s
     1001
     ```
   
-- http://localhost:49986/api/v2/resource/sample-numeric/float
+- http://localhost:59986/api/v2/resource/sample-numeric/float
   - POSTing a text float value will result in the  `Value` of the `Reading` being set to the string representation of the value as an `Float64`. The POSTed value is verified to be a valid `Float64` value. 
   
   - A 400 error will be returned if the POSTed value fails the `Float64` type verification.
