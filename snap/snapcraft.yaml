@@ -32,7 +32,8 @@ apps:
       CONFIG_PRO_ARG: "--cp=consul://localhost:8500"
       CONF_ARG: "--confdir=$SNAP_DATA/config/device-rest/res"
       REGISTRY_ARG: "--registry"
-      DEVICE_PROFILESDIR: "$SNAP_DATA/config/device-rest/res"
+      DEVICE_PROFILESDIR: "$SNAP_DATA/config/device-rest/res/profiles"
+      DEVICE_DEVICESDIR: "$SNAP_DATA/config/device-rest/res/devices"
     plugs: [network, network-bind]
 
 parts:
@@ -64,11 +65,7 @@ parts:
 
       install -d "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/"
 
-      cat "./cmd/res/configuration.toml" | \
-        sed -e s:"'./device-rest.log'":"'\$SNAP_COMMON/device-rest.log'": \
-        -e s:"ProfilesDir = './res/profiles'":"ProfilesDir = '\$SNAP_DATA/config/device-rest/res/profiles'":  \
-        -e s:"DevicesDir = './res/devices'":"DevicesDir = '\$SNAP_DATA/config/device-rest/res/devices'": > \
-        "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/configuration.toml"
+      install -DT "./cmd/res/configuration.toml" "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/configuration.toml"
 
       for fpath in ./cmd/res/profiles/*.yaml; do
           fname=$(basename "$fpath")
