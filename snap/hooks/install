@@ -9,35 +9,35 @@ SNAP_CURRENT=${SNAP/%$SNAP_REVISION/current}
 # install all the config files from $SNAP/config/SERVICE/res/configuration.toml 
 # into $SNAP_DATA/config
 mkdir -p "$SNAP_DATA/config"
-if [ ! -f "$SNAP_DATA/config/device-rest-go/res/configuration.toml" ]; then
-    mkdir -p "$SNAP_DATA/config/device-rest-go/res"
-    cp "$SNAP/config/device-rest-go/res/configuration.toml" "$SNAP_DATA/config/device-rest-go/res/configuration.toml"
+if [ ! -f "$SNAP_DATA/config/device-rest/res/configuration.toml" ]; then
+    mkdir -p "$SNAP_DATA/config/device-rest/res"
+    cp "$SNAP/config/device-rest/res/configuration.toml" "$SNAP_DATA/config/device-rest/res/configuration.toml"
     # do replacement of the $SNAP, $SNAP_DATA, $SNAP_COMMON environment variables in the config files
     sed -i -e "s@\$SNAP_COMMON@$SNAP_COMMON@g" \
         -e "s@\$SNAP_DATA@$SNAP_DATA_CURRENT@g" \
         -e "s@\$SNAP@$SNAP_CURRENT@g" \
-        "$SNAP_DATA/config/device-rest-go/res/configuration.toml"
+        "$SNAP_DATA/config/device-rest/res/configuration.toml"
 fi
 
 # also copy the device profiles into $SNAP_DATA
-mkdir -p "$SNAP_DATA/config/device-rest-go/res/profiles"
-find "$SNAP/config/device-rest-go/res/profiles/" -type f -print | grep .yaml | \
+mkdir -p "$SNAP_DATA/config/device-rest/res/profiles"
+find "$SNAP/config/device-rest/res/profiles/" -type f -print | grep .yaml | \
      while read line; do
         fname=$(basename "$line")
-        if [ ! -f "$SNAP_DATA/config/device-rest-go/res/profiles/${fname}" ]; then
-            cp "$SNAP/config/device-rest-go/res/profiles/${fname}" \
-            "$SNAP_DATA/config/device-rest-go/res/profiles/${fname}"
+        if [ ! -f "$SNAP_DATA/config/device-rest/res/profiles/${fname}" ]; then
+            cp "$SNAP/config/device-rest/res/profiles/${fname}" \
+            "$SNAP_DATA/config/device-rest/res/profiles/${fname}"
         fi
     done
 
 # also copy the device into $SNAP_DATA
-mkdir -p "$SNAP_DATA/config/device-rest-go/res/devices"
-find "$SNAP/config/device-rest-go/res/devices/" -type f -print | grep .toml | \
+mkdir -p "$SNAP_DATA/config/device-rest/res/devices"
+find "$SNAP/config/device-rest/res/devices/" -type f -print | grep .toml | \
 
     while read line; do
         fname=$(basename "$line")
-        if [ ! -f "$SNAP_DATA/config/device-rest-go/res/devices/${fname}" ]; then
-            cp "$SNAP/config/device-rest-go/res/devices/${fname}" \
-            "$SNAP_DATA/config/device-rest-go/res/devices/${fname}"
+        if [ ! -f "$SNAP_DATA/config/device-rest/res/devices/${fname}" ]; then
+            cp "$SNAP/config/device-rest/res/devices/${fname}" \
+            "$SNAP_DATA/config/device-rest/res/devices/${fname}"
         fi
     done

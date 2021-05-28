@@ -22,17 +22,18 @@ grade: stable
 confinement: strict
 
 apps:
-  device-rest-go:
+  device-rest:
     adapter: none
-    command: bin/device-rest-go $CONFIG_PRO_ARG $CONF_ARG $REGISTRY_ARG
+    command: bin/device-rest $CONFIG_PRO_ARG $CONF_ARG $REGISTRY_ARG
     command-chain:
       - bin/startup-env-var.sh
     daemon: simple
     environment:
       CONFIG_PRO_ARG: "--cp=consul://localhost:8500"
-      CONF_ARG: "--confdir=$SNAP_DATA/config/device-rest-go/res"
+      CONF_ARG: "--confdir=$SNAP_DATA/config/device-rest/res"
       REGISTRY_ARG: "--registry"
-      DEVICE_PROFILESDIR: "$SNAP_DATA/config/device-rest-go/res"
+      DEVICE_PROFILESDIR: "$SNAP_DATA/config/device-rest/res/profiles"
+      DEVICE_DEVICESDIR: "$SNAP_DATA/config/device-rest/res/devices"
     plugs: [network, network-bind]
 
 parts:
@@ -48,7 +49,7 @@ parts:
       fi
       snapcraftctl set-version ${PROJECT_VERSION}
 
-  device-rest-go:
+  device-rest:
     source: .
     plugin: make
     build-packages: [git, libzmq3-dev, zip, pkg-config]
@@ -60,32 +61,28 @@ parts:
       go mod tidy
       make build
 
-      install -DT "./cmd/device-rest-go" "$SNAPCRAFT_PART_INSTALL/bin/device-rest-go"
+      install -DT "./cmd/device-rest" "$SNAPCRAFT_PART_INSTALL/bin/device-rest"
 
-      install -d "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/"
+      install -d "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/"
 
-      cat "./cmd/res/configuration.toml" | \
-        sed -e s:"'./device-rest-go.log'":"'\$SNAP_COMMON/device-rest-go.log'": \
-        -e s:"ProfilesDir = './res/profiles'":"ProfilesDir = '\$SNAP_DATA/config/device-rest-go/res/profiles'":  \
-        -e s:"DevicesDir = './res/devices'":"DevicesDir = '\$SNAP_DATA/config/device-rest-go/res/devices'": > \
-        "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/configuration.toml"
+      install -DT "./cmd/res/configuration.toml" "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/configuration.toml"
 
       for fpath in ./cmd/res/profiles/*.yaml; do
           fname=$(basename "$fpath")
           install -DT "./cmd/res/profiles/${fname}" \
-          "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/profiles/${fname}"
+          "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/profiles/${fname}"
       done
 
       for fpath in ./cmd/res/devices/*.toml; do
           fname=$(basename "$fpath")
           install -DT "./cmd/res/devices/${fname}" \
-          "$SNAPCRAFT_PART_INSTALL/config/device-rest-go/res/devices/${fname}"
+          "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/devices/${fname}"
       done
 
       install -DT "./Attribution.txt" \
-         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest-go/Attribution.txt"
+         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest/Attribution.txt"
       install -DT "./LICENSE" \
-         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest-go/LICENSE"
+         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest/LICENSE"
 
   config-common:
     plugin: dump

@@ -29,5 +29,5 @@ $ sudo snap set edgex-device-rest startup-interval=1
 To apply the settings, the service should then be restarted as follows:
 
 ```bash
-$ sudo snap restart edgex-device-rest.device-rest-go
+$ sudo snap restart edgex-device-rest.device-rest
 ```
