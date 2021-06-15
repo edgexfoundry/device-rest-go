@@ -27,15 +27,14 @@ import (
 
 	"github.com/edgexfoundry/device-sdk-go/v2/pkg/models"
 	sdk "github.com/edgexfoundry/device-sdk-go/v2/pkg/service"
-	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients"
 	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients/logger"
-	"github.com/edgexfoundry/go-mod-core-contracts/v2/v2"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/common"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
 )
 
 const (
-	apiResourceRoute  = v2.ApiBase + "/resource/{" + v2.DeviceName + "}/{" + v2.ResourceName + "}"
+	apiResourceRoute  = common.ApiBase + "/resource/{" + common.DeviceName + "}/{" + common.ResourceName + "}"
 	handlerContextKey = "RestHandler"
 )
 
@@ -75,8 +74,8 @@ func (handler RestHandler) addContext(next func(http.ResponseWriter, *http.Reque
 
 func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
-	deviceName := vars[v2.DeviceName]
-	resourceName := vars[v2.ResourceName]
+	deviceName := vars[common.DeviceName]
+	resourceName := vars[common.ResourceName]
 
 	handler.logger.Debugf("Received POST for Device=%s Resource=%s", deviceName, resourceName)
 
@@ -95,7 +94,7 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 	}
 
 	if deviceResource.Properties.MediaType != "" {
-		contentType := request.Header.Get(clients.ContentType)
+		contentType := request.Header.Get(common.ContentType)
 
 		handler.logger.Debugf("Content Type is '%s' & Media Type is '%s' and Type is '%s'",
 			contentType, deviceResource.Properties.MediaType, deviceResource.Properties.ValueType)
@@ -110,7 +109,7 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 	}
 
 	var reading interface{}
-	if deviceResource.Properties.ValueType == v2.ValueTypeBinary {
+	if deviceResource.Properties.ValueType == common.ValueTypeBinary {
 		reading, err = handler.readBodyAsBinary(writer, request)
 	} else {
 		reading, err = handler.readBodyAsString(writer, request)
@@ -192,68 +191,68 @@ func (handler RestHandler) newCommandValue(resourceName string, reading interfac
 
 	var val interface{}
 	switch valueType {
-	case v2.ValueTypeBinary:
+	case common.ValueTypeBinary:
 		var ok bool
 		val, ok = reading.([]byte)
 		if !ok {
 			return nil, fmt.Errorf(castError, resourceName, "not []byte")
 		}
-	case v2.ValueTypeBool:
+	case common.ValueTypeBool:
 		val, err = cast.ToBoolE(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeString:
+	case common.ValueTypeString:
 		val, err = cast.ToStringE(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeUint8:
+	case common.ValueTypeUint8:
 		val, err = cast.ToUint8E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeUint16:
+	case common.ValueTypeUint16:
 		val, err = cast.ToUint16E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeUint32:
+	case common.ValueTypeUint32:
 		val, err = cast.ToUint32E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeUint64:
+	case common.ValueTypeUint64:
 		val, err = cast.ToUint64E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeInt8:
+	case common.ValueTypeInt8:
 		val, err = cast.ToInt8E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeInt16:
+	case common.ValueTypeInt16:
 		val, err = cast.ToInt16E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeInt32:
+	case common.ValueTypeInt32:
 		val, err = cast.ToInt32E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeInt64:
+	case common.ValueTypeInt64:
 		val, err = cast.ToInt64E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeFloat32:
+	case common.ValueTypeFloat32:
 		val, err = cast.ToFloat32E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
-	case v2.ValueTypeFloat64:
+	case common.ValueTypeFloat64:
 		val, err = cast.ToFloat64E(reading)
 		if err != nil {
 			return nil, fmt.Errorf(castError, resourceName, err)
@@ -274,23 +273,23 @@ func (handler RestHandler) newCommandValue(resourceName string, reading interfac
 func checkValueInRange(valueType string, reading interface{}) bool {
 	isValid := false
 
-	if valueType == v2.ValueTypeString || valueType == v2.ValueTypeBool || valueType == v2.ValueTypeBinary {
+	if valueType == common.ValueTypeString || valueType == common.ValueTypeBool || valueType == common.ValueTypeBinary {
 		return true
 	}
 
-	if valueType == v2.ValueTypeInt8 || valueType == v2.ValueTypeInt16 ||
-		valueType == v2.ValueTypeInt32 || valueType == v2.ValueTypeInt64 {
+	if valueType == common.ValueTypeInt8 || valueType == common.ValueTypeInt16 ||
+		valueType == common.ValueTypeInt32 || valueType == common.ValueTypeInt64 {
 		val := cast.ToInt64(reading)
 		isValid = checkIntValueRange(valueType, val)
 	}
 
-	if valueType == v2.ValueTypeUint8 || valueType == v2.ValueTypeUint16 ||
-		valueType == v2.ValueTypeUint32 || valueType == v2.ValueTypeUint64 {
+	if valueType == common.ValueTypeUint8 || valueType == common.ValueTypeUint16 ||
+		valueType == common.ValueTypeUint32 || valueType == common.ValueTypeUint64 {
 		val := cast.ToUint64(reading)
 		isValid = checkUintValueRange(valueType, val)
 	}
 
-	if valueType == v2.ValueTypeFloat32 || valueType == v2.ValueTypeFloat64 {
+	if valueType == common.ValueTypeFloat32 || valueType == common.ValueTypeFloat64 {
 		val := cast.ToFloat64(reading)
 		isValid = checkFloatValueRange(valueType, val)
 	}
@@ -301,19 +300,19 @@ func checkValueInRange(valueType string, reading interface{}) bool {
 func checkUintValueRange(valueType string, val uint64) bool {
 	var isValid = false
 	switch valueType {
-	case v2.ValueTypeUint8:
+	case common.ValueTypeUint8:
 		if val >= 0 && val <= math.MaxUint8 {
 			isValid = true
 		}
-	case v2.ValueTypeUint16:
+	case common.ValueTypeUint16:
 		if val >= 0 && val <= math.MaxUint16 {
 			isValid = true
 		}
-	case v2.ValueTypeUint32:
+	case common.ValueTypeUint32:
 		if val >= 0 && val <= math.MaxUint32 {
 			isValid = true
 		}
-	case v2.ValueTypeUint64:
+	case common.ValueTypeUint64:
 		maxiMum := uint64(math.MaxUint64)
 		if val >= 0 && val <= maxiMum {
 			isValid = true
@@ -325,19 +324,19 @@ func checkUintValueRange(valueType string, val uint64) bool {
 func checkIntValueRange(valueType string, val int64) bool {
 	var isValid = false
 	switch valueType {
-	case v2.ValueTypeInt8:
+	case common.ValueTypeInt8:
 		if val >= math.MinInt8 && val <= math.MaxInt8 {
 			isValid = true
 		}
-	case v2.ValueTypeInt16:
+	case common.ValueTypeInt16:
 		if val >= math.MinInt16 && val <= math.MaxInt16 {
 			isValid = true
 		}
-	case v2.ValueTypeInt32:
+	case common.ValueTypeInt32:
 		if val >= math.MinInt32 && val <= math.MaxInt32 {
 			isValid = true
 		}
-	case v2.ValueTypeInt64:
+	case common.ValueTypeInt64:
 		if val >= math.MinInt64 && val <= math.MaxInt64 {
 			isValid = true
 		}
@@ -348,11 +347,11 @@ func checkIntValueRange(valueType string, val int64) bool {
 func checkFloatValueRange(valueType string, val float64) bool {
 	var isValid = false
 	switch valueType {
-	case v2.ValueTypeFloat32:
+	case common.ValueTypeFloat32:
 		if math.Abs(val) >= math.SmallestNonzeroFloat32 && math.Abs(val) <= math.MaxFloat32 {
 			isValid = true
 		}
-	case v2.ValueTypeFloat64:
+	case common.ValueTypeFloat64:
 		if math.Abs(val) >= math.SmallestNonzeroFloat64 && math.Abs(val) <= math.MaxFloat64 {
 			isValid = true
 		}
