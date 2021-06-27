@@ -4,26 +4,18 @@
 [Github repository](https://github.com/edgexfoundry/device-rest-go)
 
 ## [v2.0.0] Ireland - 2021-06-30  (Not Compatible with 1.x releases)
+### Change Logs for EdgeX Dependencies
+- [device-sdk-go](https://github.com/edgexfoundry/device-sdk-go/blob/v2.0.0/CHANGELOG.md)
+- [go-mod-core-contracts](https://github.com/edgexfoundry/go-mod-core-contracts/blob/v2.0.0/CHANGELOG.md)
 
 ### Features ✨
 - Enable using MessageBus as the default ([#01c2e73](https://github.com/edgexfoundry/device-rest-go/commits/01c2e73))
 - Add Registry/Config Access token capability ([#03a48d5](https://github.com/edgexfoundry/device-rest-go/commits/03a48d5))
 - Remove Logging configuration ([#c973575](https://github.com/edgexfoundry/device-rest-go/commits/c973575))
 ### Bug Fixes 🐛
-- Remove retry items of SecretStore config and update secret path ([#16b192d](https://github.com/edgexfoundry/device-rest-go/commits/16b192d))
 - use correct service key in SecretStore paths ([#23b2ca7](https://github.com/edgexfoundry/device-rest-go/commits/23b2ca7))
 - Add Type='vault' to [SecretStore] config ([#99e6da9](https://github.com/edgexfoundry/device-rest-go/commits/99e6da9))
-- **build:** update go.mod to go 1.16 ([#0dd2d84](https://github.com/edgexfoundry/device-rest-go/commits/0dd2d84))
-- **build:** update Dockerfiles to use go 1.16 ([#2544f5c](https://github.com/edgexfoundry/device-rest-go/commits/2544f5c))
-- **snap:** update snap v2 support ([#b99a89d](https://github.com/edgexfoundry/device-rest-go/commits/b99a89d))
-- **snap:** update environment overrides for device and profile dir ([#5707fd0](https://github.com/edgexfoundry/device-rest-go/commits/5707fd0))
-- **snap:** update epoch for Ireland release ([#629973d](https://github.com/edgexfoundry/device-rest-go/commits/629973d))
-- **snap:** fix regression due to v2 build changes ([#a2ffdda](https://github.com/edgexfoundry/device-rest-go/commits/a2ffdda))
-- **snap:** update go to 1.16 ([#fc4971f](https://github.com/edgexfoundry/device-rest-go/commits/fc4971f))
-- **snap:** '-go' suffix removed from device name ([#8b5b60a](https://github.com/edgexfoundry/device-rest-go/commits/8b5b60a))
-- **snap:** run 'go mod tidy' ([#e393ce8](https://github.com/edgexfoundry/device-rest-go/commits/e393ce8))
 ### Code Refactoring ♻
-- bump dependency version and update import path ([#7e25169](https://github.com/edgexfoundry/device-rest-go/commits/7e25169))
 - remove unimplemented InitCmd/RemoveCmd configuration ([#d82b524](https://github.com/edgexfoundry/device-rest-go/commits/d82b524))
 - Change PublishTopicPrefix value to be 'edgex/events/device' ([#13945f3](https://github.com/edgexfoundry/device-rest-go/commits/13945f3))
 - Update configuration for change to common ServiceInfo struct Moved non-common settings under [Device] section ([#7571376](https://github.com/edgexfoundry/device-rest-go/commits/7571376))
@@ -36,14 +28,12 @@
     BREAKING CHANGE:
     Device Rest default port number has changed to 59986
     ```
-- final go.mod update ([#efff53f](https://github.com/edgexfoundry/device-rest-go/commits/efff53f))
 - Added go mod tidy under test target ([#dd01544](https://github.com/edgexfoundry/device-rest-go/commits/dd01544))
 - Update for new service key names and overrides for hyphen to underscore ([#2ecd16f](https://github.com/edgexfoundry/device-rest-go/commits/2ecd16f))
     ```
     BREAKING CHANGE:
     Service key names used in configuration have changed.
     ```
-- Secure Messagebus Rework ([#e49a06c](https://github.com/edgexfoundry/device-rest-go/commits/e49a06c))
 - use v2 device-sdk ([#8b511d7](https://github.com/edgexfoundry/device-rest-go/commits/8b511d7))
 ### Documentation 📖
 - update README for v2 ([#f51f5ca](https://github.com/edgexfoundry/device-rest-go/commits/f51f5ca))
@@ -51,6 +41,15 @@
 ### Build 👷
 - update build files for v2 ([#a01389d](https://github.com/edgexfoundry/device-rest-go/commits/a01389d))
 - **snap:** set release name to 'ireland' ([#903fe29](https://github.com/edgexfoundry/device-rest-go/commits/903fe29))
+- update go.mod to go 1.16 ([#0dd2d84](https://github.com/edgexfoundry/device-rest-go/commits/0dd2d84))
+- update Dockerfiles to use go 1.16 ([#2544f5c](https://github.com/edgexfoundry/device-rest-go/commits/2544f5c))
+- **snap:** update snap v2 support ([#b99a89d](https://github.com/edgexfoundry/device-rest-go/commits/b99a89d))
+- **snap:** update environment overrides for device and profile dir ([#5707fd0](https://github.com/edgexfoundry/device-rest-go/commits/5707fd0))
+- **snap:** update epoch for Ireland release ([#629973d](https://github.com/edgexfoundry/device-rest-go/commits/629973d))
+- **snap:** fix regression due to v2 build changes ([#a2ffdda](https://github.com/edgexfoundry/device-rest-go/commits/a2ffdda))
+- **snap:** update go to 1.16 ([#fc4971f](https://github.com/edgexfoundry/device-rest-go/commits/fc4971f))
+- **snap:** '-go' suffix removed from device name ([#8b5b60a](https://github.com/edgexfoundry/device-rest-go/commits/8b5b60a))
+- **snap:** run 'go mod tidy' ([#e393ce8](https://github.com/edgexfoundry/device-rest-go/commits/e393ce8))
 ### Continuous Integration 🔄
 - update local docker image names ([#2c710f7](https://github.com/edgexfoundry/device-rest-go/commits/2c710f7))
 
