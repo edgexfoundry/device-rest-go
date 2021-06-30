@@ -35,6 +35,8 @@ apps:
     command-chain:
       - bin/startup-env-var.sh
     daemon: simple
+    passthrough:
+      install-mode: disable
     environment:
       CONFIG_PRO_ARG: "--cp=consul://localhost:8500"
       CONF_ARG: "--confdir=$SNAP_DATA/config/device-rest/res"
@@ -44,6 +46,12 @@ apps:
       SECRETSTORE_TOKENFILE: $SNAP_DATA/device-rest/secrets-token.json
     plugs: [network, network-bind]
 
+plugs:
+  device-config:
+    interface: content
+    content: device-config
+    target: $SNAP_DATA/config/device-rest/res
+
 parts:
   version:
     plugin: nil
@@ -52,6 +60,17 @@ parts:
       cd $SNAPCRAFT_PROJECT_DIR
       GIT_VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
       snapcraftctl set-version ${GIT_VERSION}
+
+  hooks:
+    source: snap/local/hooks
+    plugin: make
+    build-snaps:
+      - go/1.16/stable
+    override-build: |
+      cd $SNAPCRAFT_PART_SRC
+      make build
+      install -DT ./cmd/configure/configure "$SNAPCRAFT_PART_INSTALL/snap/hooks/configure"
+      install -DT ./cmd/install/install "$SNAPCRAFT_PART_INSTALL/snap/hooks/install"
 
   device-rest:
     source: .
