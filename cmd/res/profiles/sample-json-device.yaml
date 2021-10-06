@@ -12,5 +12,5 @@ deviceResources:
     description: "JSON message"
     properties:
       valueType: "String"
-      readWrite: "W"
+      readWrite: "R"
       mediaType: "application/json"
