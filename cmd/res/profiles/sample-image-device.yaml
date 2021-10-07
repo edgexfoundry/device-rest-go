@@ -12,12 +12,12 @@ deviceResources:
     description: "JPEG Image binary message"
     properties:
       valueType: "Binary"
-      readWrite: "W"
+      readWrite: "R"
       mediaType: "image/jpeg"
   - name: png
     isHidden: true
     description: "PNG Image binary message"
     properties:
       valueType: "Binary"
-      readWrite: "W"
+      readWrite: "R"
       mediaType: "image/png"

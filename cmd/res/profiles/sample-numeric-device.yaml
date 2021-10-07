@@ -13,12 +13,12 @@ deviceResources:
     description: "Int64 value"
     properties:
       valueType: "Int64"
-      readWrite: "W"
+      readWrite: "R"
       mediaType: "text/plain"
   - name: float
     isHidden: true
     description: "Float64 value"
     properties:
       valueType: "Float64"
-      readWrite: "W"
+      readWrite: "R"
       mediaType: "text/plain"
