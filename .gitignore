@@ -17,7 +17,6 @@
 vendor/
 cmd/device-rest
 glide.lock
-go.sum
 
 # snap files
 *.snap

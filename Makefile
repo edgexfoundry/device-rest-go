@@ -15,19 +15,19 @@ VERSION=$(shell cat ./VERSION 2>/dev/null || echo 0.0.0)
 GIT_SHA=$(shell git rev-parse HEAD)
 GOFLAGS=-ldflags "-X github.com/edgexfoundry/device-rest-go.Version=$(VERSION)"
 
+tidy:
+	go mod tidy
+
 build: $(MICROSERVICES)
 
 cmd/device-rest:
-	go mod tidy
 	$(GOCGO) build $(GOFLAGS) -o $@ ./cmd
 
 test:
-	go mod tidy
 	$(GOCGO) test -coverprofile=coverage.out ./...
 	$(GOCGO) vet ./...
-	gofmt -l .
-	[ "`gofmt -l .`" = "" ]
-	./bin/test-go-mod-tidy.sh
+	gofmt -l $$(find . -type f -name '*.go'| grep -v "/vendor/")
+	[ "`gofmt -l $$(find . -type f -name '*.go'| grep -v "/vendor/")`" = "" ]
 	./bin/test-attribution-txt.sh
 
 clean:
@@ -40,9 +40,12 @@ docker: $(DOCKERS)
 
 docker_device_rest_go:
 	docker build \
-        --build-arg http_proxy \
-        --build-arg https_proxy \
+		--build-arg http_proxy \
+		--build-arg https_proxy \
 		--label "git_sha=$(GIT_SHA)" \
 		-t edgexfoundry/device-rest:$(GIT_SHA) \
 		-t edgexfoundry/device-rest:$(VERSION)-dev \
 		.
+
+vendor:
+	$(GO) mod vendor
