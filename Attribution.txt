@@ -153,3 +153,9 @@ https://github.com/gorilla/websocket/blob/master/LICENSE
 
 eclipse/paho.mqtt.golang (Eclipse Public License 1.0) https://github.com/eclipse/paho.mqtt.golang
 https://github.com/eclipse/paho.mqtt.golang/blob/master/LICENSE
+
+hashicorp/errwrap (Mozilla Public License 2.0) https://github.com/hashicorp/errwrap
+https://github.com/hashicorp/errwrap/blob/master/LICENSE
+
+hashicorp/go-multierror (Mozilla Public License 2.0) https://github.com/hashicorp/go-multierror
+https://github.com/hashicorp/go-multierror/blob/master/LICENSE
