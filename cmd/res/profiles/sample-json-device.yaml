@@ -11,6 +11,6 @@ deviceResources:
     isHidden: true
     description: "JSON message"
     properties:
-      valueType: "String"
+      valueType: "Object"
       readWrite: "R"
       mediaType: "application/json"

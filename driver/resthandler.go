@@ -19,6 +19,8 @@ package driver
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -29,6 +31,7 @@ import (
 	sdk "github.com/edgexfoundry/device-sdk-go/v2/pkg/service"
 	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients/logger"
 	"github.com/edgexfoundry/go-mod-core-contracts/v2/common"
+	model "github.com/edgexfoundry/go-mod-core-contracts/v2/models"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
 )
@@ -93,35 +96,24 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 		return
 	}
 
-	if deviceResource.Properties.MediaType != "" {
-		contentType := request.Header.Get(common.ContentType)
-
-		handler.logger.Debugf("Content Type is '%s' & Media Type is '%s' and Type is '%s'",
-			contentType, deviceResource.Properties.MediaType, deviceResource.Properties.ValueType)
-
-		if contentType != deviceResource.Properties.MediaType {
-			handler.logger.Errorf("Incoming reading ignored. Content Type '%s' doesn't match %s resource's Media Type '%s'",
-				contentType, resourceName, deviceResource.Properties.MediaType)
-
-			http.Error(writer, "Wrong Content-Type", http.StatusBadRequest)
-			return
-		}
-	}
+	contentType := request.Header.Get(common.ContentType)
 
 	var reading interface{}
-	if deviceResource.Properties.ValueType == common.ValueTypeBinary {
-		reading, err = handler.readBodyAsBinary(writer, request)
-	} else {
-		reading, err = handler.readBodyAsString(writer, request)
-	}
 
+	data, err := handler.readBody(request)
 	if err != nil {
 		handler.logger.Errorf("Incoming reading ignored. Unable to read request body: %s", err.Error())
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	value, err := handler.newCommandValue(resourceName, reading, deviceResource.Properties.ValueType)
+	if deviceResource.Properties.ValueType == common.ValueTypeBinary || deviceResource.Properties.ValueType == common.ValueTypeObject {
+		reading = data
+	} else {
+		reading = string(data)
+	}
+
+	value, err := handler.newCommandValue(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
 	if err != nil {
 		handler.logger.Errorf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s",
 			deviceName, resourceName, err.Error())
@@ -139,21 +131,7 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 	handler.asyncValues <- asyncValues
 }
 
-func (handler RestHandler) readBodyAsString(writer http.ResponseWriter, request *http.Request) (string, error) {
-	defer request.Body.Close()
-	body, err := ioutil.ReadAll(request.Body)
-	if err != nil {
-		return "", err
-	}
-
-	if len(body) == 0 {
-		return "", fmt.Errorf("no request body provided")
-	}
-
-	return string(body), nil
-}
-
-func (handler RestHandler) readBodyAsBinary(writer http.ResponseWriter, request *http.Request) ([]byte, error) {
+func (handler RestHandler) readBody(request *http.Request) ([]byte, error) {
 	defer request.Body.Close()
 	body, err := ioutil.ReadAll(request.Body)
 	if err != nil {
@@ -178,16 +156,10 @@ func deviceHandler(writer http.ResponseWriter, request *http.Request) {
 	handler.processAsyncRequest(writer, request)
 }
 
-func (handler RestHandler) newCommandValue(resourceName string, reading interface{}, valueType string) (*models.CommandValue, error) {
+func (handler RestHandler) newCommandValue(resource model.DeviceResource, reading interface{}, valueType string, contentType string) (*models.CommandValue, error) {
 	var err error
 	var result = &models.CommandValue{}
-	castError := "fail to parse %v reading, %v"
-
-	if !checkValueInRange(valueType, reading) {
-		err = fmt.Errorf("parse reading fail. Reading %v is out of the value type(%v)'s range", reading, valueType)
-		handler.logger.Error(err.Error())
-		return result, err
-	}
+	castError := "failed to parse %v reading, %v"
 
 	var val interface{}
 	switch valueType {
@@ -195,73 +167,120 @@ func (handler RestHandler) newCommandValue(resourceName string, reading interfac
 		var ok bool
 		val, ok = reading.([]byte)
 		if !ok {
-			return nil, fmt.Errorf(castError, resourceName, "not []byte")
+			return nil, fmt.Errorf(castError, resource.Name, "not []byte")
+		}
+		if contentType != resource.Properties.MediaType {
+			return nil, fmt.Errorf("wrong Content-Type: expected '%s' but received '%s'", resource.Properties.MediaType, contentType)
+		}
+	case common.ValueTypeObject:
+		if contentType != common.ContentTypeJSON {
+			return nil, fmt.Errorf("wrong Content-Type: expected '%s' but received '%s'", common.ContentTypeJSON, contentType)
+		}
+
+		data, ok := reading.([]byte)
+		if !ok {
+			return nil, fmt.Errorf(castError, resource.Name, "not []byte")
+		}
+
+		val = map[string]interface{}{}
+		if err := json.Unmarshal(data, &val); err != nil {
+			return nil, errors.New("unable to marshal JSON data to type Object")
 		}
 	case common.ValueTypeBool:
 		val, err = cast.ToBoolE(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
 		}
 	case common.ValueTypeString:
 		val, err = cast.ToStringE(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
 		}
 	case common.ValueTypeUint8:
 		val, err = cast.ToUint8E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkUintValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	case common.ValueTypeUint16:
 		val, err = cast.ToUint16E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkUintValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	case common.ValueTypeUint32:
 		val, err = cast.ToUint32E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkUintValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	case common.ValueTypeUint64:
 		val, err = cast.ToUint64E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkUintValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	case common.ValueTypeInt8:
 		val, err = cast.ToInt8E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkIntValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	case common.ValueTypeInt16:
 		val, err = cast.ToInt16E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkIntValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	case common.ValueTypeInt32:
 		val, err = cast.ToInt32E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkIntValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	case common.ValueTypeInt64:
 		val, err = cast.ToInt64E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkIntValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	case common.ValueTypeFloat32:
 		val, err = cast.ToFloat32E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkFloatValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	case common.ValueTypeFloat64:
 		val, err = cast.ToFloat64E(reading)
 		if err != nil {
-			return nil, fmt.Errorf(castError, resourceName, err)
+			return nil, fmt.Errorf(castError, resource.Name, err)
+		}
+		if err := checkFloatValueRange(valueType, val); err != nil {
+			return nil, err
 		}
 	default:
-		err = fmt.Errorf("return result fail, none supported value type: %v", valueType)
+		return nil, fmt.Errorf("return result fail, unsupported value type: %v", valueType)
 	}
 
-	result, err = models.NewCommandValue(resourceName, valueType, val)
+	result, err = models.NewCommandValue(resource.Name, valueType, val)
 	if err != nil {
 		return nil, err
 	}
@@ -270,89 +289,72 @@ func (handler RestHandler) newCommandValue(resourceName string, reading interfac
 	return result, nil
 }
 
-func checkValueInRange(valueType string, reading interface{}) bool {
-	isValid := false
-
-	if valueType == common.ValueTypeString || valueType == common.ValueTypeBool || valueType == common.ValueTypeBinary {
-		return true
-	}
-
-	if valueType == common.ValueTypeInt8 || valueType == common.ValueTypeInt16 ||
-		valueType == common.ValueTypeInt32 || valueType == common.ValueTypeInt64 {
-		val := cast.ToInt64(reading)
-		isValid = checkIntValueRange(valueType, val)
-	}
-
-	if valueType == common.ValueTypeUint8 || valueType == common.ValueTypeUint16 ||
-		valueType == common.ValueTypeUint32 || valueType == common.ValueTypeUint64 {
-		val := cast.ToUint64(reading)
-		isValid = checkUintValueRange(valueType, val)
-	}
-
-	if valueType == common.ValueTypeFloat32 || valueType == common.ValueTypeFloat64 {
-		val := cast.ToFloat64(reading)
-		isValid = checkFloatValueRange(valueType, val)
-	}
-
-	return isValid
-}
-
-func checkUintValueRange(valueType string, val uint64) bool {
-	var isValid = false
+func checkUintValueRange(valueType string, val interface{}) error {
 	switch valueType {
 	case common.ValueTypeUint8:
-		if val <= math.MaxUint8 {
-			isValid = true
+		valUint8 := val.(uint8)
+		if valUint8 <= math.MaxUint8 {
+			return nil
 		}
 	case common.ValueTypeUint16:
-		if val <= math.MaxUint16 {
-			isValid = true
+		valUint16 := val.(uint16)
+		if valUint16 <= math.MaxUint16 {
+			return nil
 		}
 	case common.ValueTypeUint32:
-		if val <= math.MaxUint32 {
-			isValid = true
+		valUint32 := val.(uint32)
+		if valUint32 <= math.MaxUint32 {
+			return nil
 		}
 	case common.ValueTypeUint64:
+		valUint64 := val.(uint64)
 		maxiMum := uint64(math.MaxUint64)
-		if val <= maxiMum {
-			isValid = true
+		if valUint64 <= maxiMum {
+			return nil
 		}
 	}
-	return isValid
+	return fmt.Errorf("value %v for %s type is out of range", val, valueType)
 }
 
-func checkIntValueRange(valueType string, val int64) bool {
-	var isValid = false
+func checkIntValueRange(valueType string, val interface{}) error {
 	switch valueType {
 	case common.ValueTypeInt8:
-		if val >= math.MinInt8 && val <= math.MaxInt8 {
-			isValid = true
+		valInt8 := val.(int8)
+		if valInt8 >= math.MinInt8 && valInt8 <= math.MaxInt8 {
+			return nil
 		}
 	case common.ValueTypeInt16:
-		if val >= math.MinInt16 && val <= math.MaxInt16 {
-			isValid = true
+		valInt16 := val.(int16)
+		if valInt16 >= math.MinInt16 && valInt16 <= math.MaxInt16 {
+			return nil
 		}
 	case common.ValueTypeInt32:
-		if val >= math.MinInt32 && val <= math.MaxInt32 {
-			isValid = true
+		valInt32 := val.(int32)
+		if valInt32 >= math.MinInt32 && valInt32 <= math.MaxInt32 {
+			return nil
 		}
 	case common.ValueTypeInt64:
-		isValid = true
+		valInt64 := val.(int64)
+		if valInt64 >= math.MinInt64 && valInt64 <= math.MaxInt64 {
+			return nil
+		}
 	}
-	return isValid
+	return fmt.Errorf("value %v for %s type is out of range", val, valueType)
 }
 
-func checkFloatValueRange(valueType string, val float64) bool {
-	var isValid = false
+func checkFloatValueRange(valueType string, val interface{}) error {
 	switch valueType {
 	case common.ValueTypeFloat32:
-		if math.Abs(val) >= math.SmallestNonzeroFloat32 && math.Abs(val) <= math.MaxFloat32 {
-			isValid = true
+		valFloat := val.(float32)
+		if math.Abs(float64(valFloat)) >= math.SmallestNonzeroFloat32 && math.Abs(float64(valFloat)) <= math.MaxFloat32 {
+			return nil
 		}
 	case common.ValueTypeFloat64:
-		if math.Abs(val) >= math.SmallestNonzeroFloat64 && math.Abs(val) <= math.MaxFloat64 {
-			isValid = true
+		valFloat := val.(float64)
+		if math.Abs(valFloat) >= math.SmallestNonzeroFloat64 && math.Abs(valFloat) <= math.MaxFloat64 {
+			return nil
 		}
 	}
-	return isValid
+
+	return fmt.Errorf("value %v for %s type is out of range", val, valueType)
 }
