@@ -1,4 +1,3 @@
-GO=GO111MODULE=on go
 HOOKS=cmd/configure/configure cmd/install/install
 
 tidy:
@@ -7,10 +6,10 @@ tidy:
 build: tidy $(HOOKS)
 
 cmd/configure/configure:
-	$(GO) build -o $@ ./cmd/configure
+	go build -o $@ ./cmd/configure
 
 cmd/install/install:
-	$(GO) build -o $@ ./cmd/install
+	go build -o $@ ./cmd/install
 
 clean:
 	rm -f $(HOOKS)

@@ -90,19 +90,11 @@ parts:
 
       install -d "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/"
 
-      install -DT "./cmd/res/configuration.toml" "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/configuration.toml"
-
-      for fpath in ./cmd/res/profiles/*.yaml; do
-          fname=$(basename "$fpath")
-          install -DT "./cmd/res/profiles/${fname}" \
-          "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/profiles/${fname}"
-      done
-
-      for fpath in ./cmd/res/devices/*.toml; do
-          fname=$(basename "$fpath")
-          install -DT "./cmd/res/devices/${fname}" \
-          "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/devices/${fname}"
-      done
+      # copy all config files
+      mkdir -p $SNAPCRAFT_PART_INSTALL/config/device-rest/res
+      cp -rv cmd/res/configuration.toml $SNAPCRAFT_PART_INSTALL/config/device-rest/res/configuration.toml 
+      cp -rv cmd/res/devices $SNAPCRAFT_PART_INSTALL/config/device-rest/res/devices     
+      cp -rv cmd/res/profiles $SNAPCRAFT_PART_INSTALL/config/device-rest/res/profiles  
 
       install -DT "./Attribution.txt" \
          "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest/Attribution.txt"
@@ -112,3 +104,4 @@ parts:
   config-common:
     plugin: dump
     source: snap/local/runtime-helpers
+
