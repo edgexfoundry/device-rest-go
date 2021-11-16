@@ -82,7 +82,7 @@ slots:
   device-config:
     interface: content  
     content: device-config
-    write: 
+    read: 
       - $SNAP/config
 ```
 
@@ -122,12 +122,15 @@ the overrides will be picked up when the services are first started.
 
 The following syntax is used to specify service-specific configuration overrides:
 
-
 ```env.<stanza>.<config option>```
+
 For instance, to setup an override of the service's Port use:
-```$ sudo snap set edgex-device-rest env.service.port=2112```
+
+```sudo snap set edgex-device-rest env.service.port=2112```
+
 And restart the service:
-```$ sudo snap restart edgex-device-rest.device-rest```
+
+```sudo snap restart edgex-device-rest.device-rest```
 
 **Note** - at this time changes to configuration values in the [Writable] section are not supported.
 For details on the mapping of configuration options to Config options, please refer to "Service Environment Configuration Overrides".
@@ -136,12 +139,10 @@ For details on the mapping of configuration options to Config options, please re
 **Note** - all of the configuration options below must be specified with the prefix: 'env.'
 ```
 [Service]
-service.boot-timeout            // Service.BootTimeout
 service.health-check-interval   // Service.HealthCheckInterval
 service.host                    // Service.Host
 service.server-bind-addr        // Service.ServerBindAddr
 service.port                    // Service.Port
-service.protocol                // Service.Protocol
 service.max-result-count        // Service.MaxResultCount
 service.max-request-size        // Service.MaxRequestSize
 service.startup-msg             // Service.StartupMsg
