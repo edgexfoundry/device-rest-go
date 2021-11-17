@@ -146,6 +146,7 @@ EdgeX Device REST is also available as a snap package. Install the snap with the
 ```
 sudo snap install edgex-device-rest
 ```
-for more details on the Device REST Snap, including installation, configuration, please refer to [EdgeX REST Device Service Snap](https://github.com/edgexfoundry/device-rest-go/tree/main/snap)
+For more details on the Device REST Snap, including installation, configuration, please refer to [EdgeX REST Device Service Snap](https://github.com/edgexfoundry/device-rest-go/tree/main/snap)
 
-for more details on Snap, including EdgeX Snap, viewing logs, security services, please check [Getting Started with Snap](https://docs.edgexfoundry.org/2.0/getting-started/Ch-GettingStartedSnapUsers/)
+For more details on deploying EdgeX with Snaps, viewing logs, security services, please check [Getting Started with Snap](https://docs.edgexfoundry.org/2.0/getting-started/Ch-GettingStartedSnapUsers/)
+
