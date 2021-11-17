@@ -1,5 +1,5 @@
 name: edgex-device-rest
-base: core18
+base: core20
 type: app
 adopt-info: device-rest
 license: Apache-2.0
