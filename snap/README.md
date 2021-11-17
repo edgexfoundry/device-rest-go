@@ -28,10 +28,10 @@ The latest stable version of the snap can be installed using:
 $ sudo snap install edgex-device-rest
 ```
 
-The 2.0 (Ireland) release of the snap can be installed using:
+The 2.1 (jakarta) release of the snap can be installed using:
 
 ```bash
-$ sudo snap install edgex-device-rest --channel=2.0
+$ sudo snap install edgex-device-rest --channel=2.1
 ```
 
 The latest development version of the snap can be installed using:
@@ -147,6 +147,10 @@ service.max-result-count        // Service.MaxResultCount
 service.max-request-size        // Service.MaxRequestSize
 service.startup-msg             // Service.StartupMsg
 service.request-timeout         // Service.RequestTimeout
+
+[SecretStore]
+secret-store.secrets-file               // SecretStore.SecretsFile
+secret-store.disable-scrub-secrets-file // SecretStore.DisableScrubSecretsFile
 
 [Clients.core-data]
 clients.core-data.port          // Clients.core-data.Port
