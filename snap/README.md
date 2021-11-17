@@ -19,25 +19,25 @@ The snap is published in the snap store at https://snapcraft.io/edgex-device-res
 You can see the current revisions available for your machine's architecture by running the command:
 
 ```bash
-$ snap info edgex-device-rest
+snap info edgex-device-rest
 ```
 
 The latest stable version of the snap can be installed using:
 
 ```bash
-$ sudo snap install edgex-device-rest
+sudo snap install edgex-device-rest
 ```
 
-The 2.0 (Ireland) release of the snap can be installed using:
+The 2.1 (jakarta) release of the snap can be installed using:
 
 ```bash
-$ sudo snap install edgex-device-rest --channel=2.0
+sudo snap install edgex-device-rest --channel=2.1
 ```
 
 The latest development version of the snap can be installed using:
 
 ```bash
-$ sudo snap install edgex-device-rest --edge
+sudo snap install edgex-device-rest --edge
 ```
 
 **Note** - the snap has only been tested on Ubuntu Core, Desktop, and Server.
@@ -54,19 +54,19 @@ This snap therefore implements a basic retry loop with a maximum duration and sl
 To change the maximum duration, use the following command:
 
 ```bash
-$ sudo snap set edgex-device-rest startup-duration=60
+sudo snap set edgex-device-rest startup-duration=60
 ```
 
 To change the interval between retries, use the following command:
 
 ```bash
-$ sudo snap set edgex-device-rest startup-interval=1
+sudo snap set edgex-device-rest startup-interval=1
 ```
 
-The service can then be started as follows. The "--enable" option
+The service can then be started as follows. The `--enable` option
 ensures that as well as starting the service now, it will be automatically started on boot:
 ```bash
-$ sudo snap start --enable edgex-device-rest.device-rest
+sudo snap start --enable edgex-device-rest.device-rest
 ```
  
 ### Using a content interface to set device configuration
@@ -82,7 +82,7 @@ slots:
   device-config:
     interface: content  
     content: device-config
-    write: 
+    read: 
       - $SNAP/config
 ```
 
@@ -91,21 +91,21 @@ where `$SNAP/config` is configuration directory your snap is providing to the de
 Then connect the plug in the device snap to the slot in your snap, which will replace the configuration in the device snap. Do this with:
 
 ```bash
-$ sudo snap connect edgex-device-rest:device-config your-snap:device-config
+sudo snap connect edgex-device-rest:device-config your-snap:device-config
 ```
 
 This needs to be done before the device service is started for the first time. Once you have set the configuration the device service can be started and it will then be configurated using the settings you provided:
 
 ```bash
-$ sudo snap start edgex-device-rest.device-rest
+sudo snap start edgex-device-rest.device-rest
 ```
 
 **Note** - content interfaces from snaps installed from the Snap Store that have the same publisher connect automatically. For more information on snap content interfaces please refer to the snapcraft.io [Content Interface](https://snapcraft.io/docs/content-interface) documentation.
 
 ### Autostart
-By default, the edgex-device-rest disables its service on install, as the expectation is that the default profile configuration files will be customized, and thus this behavior allows the profile ```configuration.toml``` files in $SNAP_DATA to be modified before the service is first started.
+By default, the edgex-device-rest disables its service on install, as the expectation is that the default profile configuration files will be customized, and thus this behavior allows the profile `configuration.toml` files in $SNAP_DATA to be modified before the service is first started.
 
-This behavior can be overridden by setting the ```autostart``` configuration setting to "true". This is useful when configuration and/or device profiles are being provided via configuration or gadget snap content interface.
+This behavior can be overridden by setting the `autostart` configuration setting to `true`. This is useful when configuration and/or device profiles are being provided via configuration or gadget snap content interface.
 
 **Note** - this option is typically set from a gadget snap.
 
@@ -122,30 +122,35 @@ the overrides will be picked up when the services are first started.
 
 The following syntax is used to specify service-specific configuration overrides:
 
-
 ```env.<stanza>.<config option>```
+
 For instance, to setup an override of the service's Port use:
-```$ sudo snap set edgex-device-rest env.service.port=2112```
+
+```sudo snap set edgex-device-rest env.service.port=2112```
+
 And restart the service:
-```$ sudo snap restart edgex-device-rest.device-rest```
+
+```sudo snap restart edgex-device-rest.device-rest```
 
 **Note** - at this time changes to configuration values in the [Writable] section are not supported.
-For details on the mapping of configuration options to Config options, please refer to "Service Environment Configuration Overrides".
+For details on the mapping of configuration options to Config options, please refer to [Service Environment Configuration Overrides](#service-environment-configuration-overrides) below.
 
 ## Service Environment Configuration Overrides
-**Note** - all of the configuration options below must be specified with the prefix: 'env.'
+**Note** - all of the configuration options below must be specified with the prefix: `env.`
 ```
 [Service]
-service.boot-timeout            // Service.BootTimeout
 service.health-check-interval   // Service.HealthCheckInterval
 service.host                    // Service.Host
 service.server-bind-addr        // Service.ServerBindAddr
 service.port                    // Service.Port
-service.protocol                // Service.Protocol
 service.max-result-count        // Service.MaxResultCount
 service.max-request-size        // Service.MaxRequestSize
 service.startup-msg             // Service.StartupMsg
 service.request-timeout         // Service.RequestTimeout
+
+[SecretStore]
+secret-store.secrets-file               // SecretStore.SecretsFile
+secret-store.disable-scrub-secrets-file // SecretStore.DisableScrubSecretsFile
 
 [Clients.core-data]
 clients.core-data.port          // Clients.core-data.Port
