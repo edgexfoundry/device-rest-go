@@ -35,8 +35,7 @@ apps:
     command-chain:
       - bin/startup-env-var.sh
     daemon: simple
-    passthrough:
-      install-mode: disable
+    install-mode: disable
     environment:
       CONFIG_PRO_ARG: "--cp=consul://localhost:8500"
       CONF_ARG: "--confdir=$SNAP_DATA/config/device-rest/res"
