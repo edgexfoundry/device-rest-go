@@ -295,27 +295,23 @@ func (handler RestHandler) newCommandValue(resource model.DeviceResource, readin
 func checkUintValueRange(valueType string, val interface{}) error {
 	switch valueType {
 	case common.ValueTypeUint8:
-		valUint8 := val.(uint8)
-		maxiMum := uint8(math.MaxUint8)
-		if valUint8 <= maxiMum {
+		_, ok := val.(uint8)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeUint16:
-		valUint16 := val.(uint16)
-		maxiMum := val.(uint16)
-		if valUint16 <= maxiMum {
+		_, ok := val.(uint16)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeUint32:
-		valUint32 := val.(uint32)
-		maxiMum := val.(uint32)
-		if valUint32 <= maxiMum {
+		_, ok := val.(uint32)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeUint64:
-		valUint64 := val.(uint64)
-		maxiMum := uint64(math.MaxUint64)
-		if valUint64 <= maxiMum {
+		_, ok := val.(uint64)
+		if ok {
 			return nil
 		}
 	}
@@ -325,31 +321,23 @@ func checkUintValueRange(valueType string, val interface{}) error {
 func checkIntValueRange(valueType string, val interface{}) error {
 	switch valueType {
 	case common.ValueTypeInt8:
-		valInt8 := val.(int8)
-		maxiMum := int8(math.MaxInt8)
-		miniMum := int8(math.MinInt8)
-		if valInt8 >= miniMum && valInt8 <= maxiMum {
+		_, ok := val.(int8)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeInt16:
-		valInt16 := val.(int16)
-		maxiMum := int16(math.MaxInt16)
-		miniMum := int16(math.MinInt16)
-		if valInt16 >= miniMum && valInt16 <= maxiMum {
+		_, ok := val.(int16)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeInt32:
-		valInt32 := val.(int32)
-		maxiMum := int32(math.MaxInt32)
-		miniMum := int32(math.MinInt32)
-		if valInt32 >= miniMum && valInt32 <= maxiMum {
+		_, ok := val.(int32)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeInt64:
-		valInt64 := val.(int64)
-		maxiMum := int64(math.MaxInt64)
-		miniMum := int64(math.MinInt64)
-		if valInt64 >= miniMum && valInt64 <= maxiMum {
+		_, ok := val.(int64)
+		if ok {
 			return nil
 		}
 	}
