@@ -70,7 +70,7 @@ func (handler RestHandler) Start() error {
 func (handler RestHandler) addContext(next func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	// Add the context with the handler so the endpoint handling code can get back to this handler
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), handlerContextKey, handler)
+		ctx := context.WithValue(r.Context(), handlerContextKey, handler) //nolint
 		next(w, r.WithContext(ctx))
 	})
 }
@@ -149,7 +149,10 @@ func deviceHandler(writer http.ResponseWriter, request *http.Request) {
 	handler, ok := request.Context().Value(handlerContextKey).(RestHandler)
 	if !ok {
 		writer.WriteHeader(http.StatusBadRequest)
-		writer.Write([]byte("Bad context pass to handler"))
+		_, err := writer.Write([]byte("Bad context pass to handler"))
+		if err != nil {
+			handler.logger.Debugf("problem in writer of byte array: '%s'", err.Error())
+		}
 		return
 	}
 
@@ -292,24 +295,23 @@ func (handler RestHandler) newCommandValue(resource model.DeviceResource, readin
 func checkUintValueRange(valueType string, val interface{}) error {
 	switch valueType {
 	case common.ValueTypeUint8:
-		valUint8 := val.(uint8)
-		if valUint8 <= math.MaxUint8 {
+		_, ok := val.(uint8)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeUint16:
-		valUint16 := val.(uint16)
-		if valUint16 <= math.MaxUint16 {
+		_, ok := val.(uint16)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeUint32:
-		valUint32 := val.(uint32)
-		if valUint32 <= math.MaxUint32 {
+		_, ok := val.(uint32)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeUint64:
-		valUint64 := val.(uint64)
-		maxiMum := uint64(math.MaxUint64)
-		if valUint64 <= maxiMum {
+		_, ok := val.(uint64)
+		if ok {
 			return nil
 		}
 	}
@@ -319,23 +321,23 @@ func checkUintValueRange(valueType string, val interface{}) error {
 func checkIntValueRange(valueType string, val interface{}) error {
 	switch valueType {
 	case common.ValueTypeInt8:
-		valInt8 := val.(int8)
-		if valInt8 >= math.MinInt8 && valInt8 <= math.MaxInt8 {
+		_, ok := val.(int8)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeInt16:
-		valInt16 := val.(int16)
-		if valInt16 >= math.MinInt16 && valInt16 <= math.MaxInt16 {
+		_, ok := val.(int16)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeInt32:
-		valInt32 := val.(int32)
-		if valInt32 >= math.MinInt32 && valInt32 <= math.MaxInt32 {
+		_, ok := val.(int32)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeInt64:
-		valInt64 := val.(int64)
-		if valInt64 >= math.MinInt64 && valInt64 <= math.MaxInt64 {
+		_, ok := val.(int64)
+		if ok {
 			return nil
 		}
 	}

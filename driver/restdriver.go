@@ -26,8 +26,7 @@ import (
 )
 
 type RestDriver struct {
-	logger      logger.LoggingClient
-	asyncValues chan<- *dsModels.AsyncValues
+	logger logger.LoggingClient
 }
 
 // Initialize performs protocol-specific initialization for the device
