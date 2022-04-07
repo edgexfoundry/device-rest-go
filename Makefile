@@ -3,6 +3,12 @@
 GO=CGO_ENABLED=0 GO111MODULE=on go
 GOCGO=CGO_ENABLED=1 GO111MODULE=on go
 
+# see https://shibumi.dev/posts/hardening-executables
+CGO_CPPFLAGS="-D_FORTIFY_SOURCE=2"
+CGO_CFLAGS="-O2 -pipe -fno-plt"
+CGO_CXXFLAGS="-O2 -pipe -fno-plt"
+CGO_LDFLAGS="-Wl,-O1,–sort-common,–as-needed,-z,relro,-z,now"
+
 MICROSERVICES=cmd/device-rest
 
 .PHONY: $(MICROSERVICES)
@@ -15,7 +21,8 @@ DOCKERS=docker_device_rest_go
 VERSION=$(shell cat ./VERSION 2>/dev/null || echo 0.0.0)
 
 GIT_SHA=$(shell git rev-parse HEAD)
-GOFLAGS=-ldflags "-X github.com/edgexfoundry/device-rest-go.Version=$(VERSION)"
+GOFLAGS=-ldflags "-X github.com/edgexfoundry/device-rest-go.Version=$(VERSION)" -trimpath -mod=readonly
+CGOFLAGS=-ldflags "-linkmode=external -X github.com/edgexfoundry/device-rest-go.Version=$(VERSION)" -trimpath -mod=readonly -buildmode=pie
 
 tidy:
 	go mod tidy
@@ -23,7 +30,7 @@ tidy:
 build: $(MICROSERVICES)
 
 cmd/device-rest:
-	$(GOCGO) build $(GOFLAGS) -o $@ ./cmd
+	$(GOCGO) build $(CGOFLAGS) -o $@ ./cmd
 
 unittest:
 	$(GOCGO) test ./... -coverprofile=coverage.out ./...
