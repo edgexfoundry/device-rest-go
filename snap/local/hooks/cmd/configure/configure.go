@@ -20,10 +20,13 @@ package main
 
 import (
 	"fmt"
-	hooks "github.com/canonical/edgex-snap-hooks/v2"
-	local "github.com/edgexfoundry/device-rest-go/hooks"
 	"os"
 	"strings"
+
+	hooks "github.com/canonical/edgex-snap-hooks/v2"
+	"github.com/canonical/edgex-snap-hooks/v2/log"
+	"github.com/canonical/edgex-snap-hooks/v2/options"
+	local "github.com/edgexfoundry/device-rest-go/hooks"
 )
 
 var cli *hooks.CtlCli = hooks.NewSnapCtl()
@@ -95,6 +98,12 @@ func main() {
 		// no action necessary
 	default:
 		hooks.Error(fmt.Sprintf("Invalid value for 'autostart' : %s", autostart))
+		os.Exit(1)
+	}
+
+	log.SetComponentName("configure")
+	if err := options.ProcessAppConfig("device-rest"); err != nil {
+		hooks.Error(fmt.Sprintf("could not process options: %v", err))
 		os.Exit(1)
 	}
 }
