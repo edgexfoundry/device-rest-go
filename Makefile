@@ -25,7 +25,7 @@ GOFLAGS=-ldflags "-X github.com/edgexfoundry/device-rest-go.Version=$(VERSION)" 
 CGOFLAGS=-ldflags "-linkmode=external -X github.com/edgexfoundry/device-rest-go.Version=$(VERSION)" -trimpath -mod=readonly -buildmode=pie
 
 tidy:
-	go mod tidy
+	go mod tidy -compat=1.17
 
 build: $(MICROSERVICES)
 
