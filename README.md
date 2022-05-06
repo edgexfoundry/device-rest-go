@@ -141,12 +141,15 @@ Since `Commanding` is not implemented, specifying `AutoEvents` in the configurat
 3. Alternatively the device service can be built natively:
 
         make build
-### Running the device-rest Service as a Snap
-EdgeX Device REST is also available as a snap package. Install the snap with the following command:
-```
-sudo snap install edgex-device-rest
-```
-For more details on the Device REST Snap, including installation, configuration, please refer to [EdgeX REST Device Service Snap](https://github.com/edgexfoundry/device-rest-go/tree/main/snap)
+        
+## Packaging
 
-For more details on deploying EdgeX with Snaps, viewing logs, security services, please check [Getting Started with Snap](https://docs.edgexfoundry.org/2.0/getting-started/Ch-GettingStartedSnapUsers/)
+This component is packaged as docker image and snap.
 
+For docker, please refer to the [Dockerfile] and [Docker Compose Builder] scripts.
+
+For the snap, refer to the [snap] directory.
+
+[Dockerfile]: Dockerfile
+[Docker Compose Builder]: https://github.com/edgexfoundry/edgex-compose/tree/main/compose-builder
+[snap]: snap
