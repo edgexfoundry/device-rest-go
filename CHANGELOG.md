@@ -21,6 +21,24 @@
 ### Bug Fixes 🐛
 - **snap:** expose parent directory in device-config plug ([#f967545](https://github.com/edgexfoundry/device-rest-go/commits/f967545))
 
+### Code Refactoring ♻
+- **snap:** remove obsolete passthrough usage ([#fd6a719](https://github.com/edgexfoundry/device-rest-go/commits/fd6a719))
+- **snap:** remove redundant content indentifier ([#67a8320](https://github.com/edgexfoundry/device-rest-go/commits/67a8320))
+
+### Build 👷
+- Update to latest SDK w/o ZMQ on windows ([#222d1f3](https://github.com/edgexfoundry/device-rest-go/commits/222d1f3))
+    ```
+    BREAKING CHANGE:
+    ZeroMQ no longer supported on native Windows for EdgeX
+    MessageBus
+    ```
+- **snap:** source snap metadata from external repo ([#45d15e4](https://github.com/edgexfoundry/device-rest-go/commits/45d15e4))
+- **snap:** Add go tidy compat 1.7 flag ([#9ff0b86](https://github.com/edgexfoundry/device-rest-go/commits/9ff0b86))
+
+### Continuous Integration 🔄
+- gomod changes related for Go 1.17 ([#5bc210e](https://github.com/edgexfoundry/device-rest-go/commits/5bc210e))
+- Go 1.17 related changes ([#06c0ff5](https://github.com/edgexfoundry/device-rest-go/commits/06c0ff5))
+
 ## [v2.1.0] Jakarta - 2021-11-18  (Not Compatible with 1.x releases)
 
 ### Features ✨
@@ -31,6 +49,24 @@
 - Update device resource RW permission to read-only ([#9eb04a7](https://github.com/edgexfoundry/device-rest-go/commits/9eb04a7))
 - Remove the code: condition that is always true ([#4225c14](https://github.com/edgexfoundry/device-rest-go/commits/4225c14))
 - Update all TOML to use quote and not single-quote ([#93dcba7](https://github.com/edgexfoundry/device-rest-go/commits/93dcba7))
+
+### Documentation 📖
+- Add snap section in README.md ([#31e4a8a](https://github.com/edgexfoundry/device-rest-go/commits/31e4a8a))
+- Update build status badge ([#ad5ae9a](https://github.com/edgexfoundry/device-rest-go/commits/ad5ae9a))
+- **snap:** Update snap/README's format ([#0360482](https://github.com/edgexfoundry/device-rest-go/commits/0360482))
+- **snap:** Update snap/README (part 2) ([#1941e36](https://github.com/edgexfoundry/device-rest-go/commits/1941e36))
+- **snap:** Update snap/README ([#55adbc2](https://github.com/edgexfoundry/device-rest-go/commits/55adbc2))
+
+### Build 👷
+- Update to latest SDK and released go-mods ([#754aee6](https://github.com/edgexfoundry/device-rest-go/commits/754aee6))
+- Update to latest SDK ([#97198e6](https://github.com/edgexfoundry/device-rest-go/commits/97198e6))
+- Update alpine base to 3.14 ([#721085b](https://github.com/edgexfoundry/device-rest-go/commits/721085b))
+- **snap:** Update snap packaging ([#cbfdaf9](https://github.com/edgexfoundry/device-rest-go/commits/cbfdaf9))
+- **snap:** Update `base` to core20 ([#7435c4d](https://github.com/edgexfoundry/device-rest-go/commits/7435c4d))
+- **snap:** Update README and add snap/local/hooks/go.sum ([#ae9526d](https://github.com/edgexfoundry/device-rest-go/commits/ae9526d))
+
+### Continuous Integration 🔄
+- Remove need for CI specific Dockerfile ([#b871a07](https://github.com/edgexfoundry/device-rest-go/commits/b871a07))
 
 ## [v2.0.0] Ireland - 2021-06-30  (Not Compatible with 1.x releases)
 
