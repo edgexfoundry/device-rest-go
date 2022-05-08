@@ -3,10 +3,36 @@
 ## EdgeX REST Device Service
 [Github repository](https://github.com/edgexfoundry/device-rest-go)
 
-## [v2.0.0] Ireland - 2021-06-30  (Not Compatible with 1.x releases)
 ### Change Logs for EdgeX Dependencies
-- [device-sdk-go](https://github.com/edgexfoundry/device-sdk-go/blob/v2.0.0/CHANGELOG.md)
-- [go-mod-core-contracts](https://github.com/edgexfoundry/go-mod-core-contracts/blob/v2.0.0/CHANGELOG.md)
+- [device-sdk-go](https://github.com/edgexfoundry/device-sdk-go/blob/main/CHANGELOG.md)
+- [go-mod-core-contracts](https://github.com/edgexfoundry/go-mod-core-contracts/blob/main/CHANGELOG.md)
+- [go-mod-bootstrap](https://github.com/edgexfoundry/go-mod-bootstrap/blob/main/CHANGELOG.md)  (indirect dependency)
+- [go-mod-messaging](https://github.com/edgexfoundry/go-mod-messaging/blob/main/CHANGELOG.md) (indirect dependency)
+- [go-mod-registry](https://github.com/edgexfoundry/go-mod-registry/blob/main/CHANGELOG.md)  (indirect dependency)
+- [go-mod-secrets](https://github.com/edgexfoundry/go-mod-secrets/blob/main/CHANGELOG.md) (indirect dependency)
+- [go-mod-configuration](https://github.com/edgexfoundry/go-mod-configuration/blob/main/CHANGELOG.md) (indirect dependency)
+
+## [v2.2.0] Kamakura - 2022-05-11  (Not Compatible with 1.x releases)
+
+### Features ✨
+- Enable security hardening ([#cc8c89e](https://github.com/edgexfoundry/device-rest-go/commits/cc8c89e))
+- Addressed review issue of value type checking in check uint and int methods ([#747ebf9](https://github.com/edgexfoundry/device-rest-go/commits/747ebf9))
+
+### Bug Fixes 🐛
+- **snap:** expose parent directory in device-config plug ([#f967545](https://github.com/edgexfoundry/device-rest-go/commits/f967545))
+
+## [v2.1.0] Jakarta - 2021-11-18  (Not Compatible with 1.x releases)
+
+### Features ✨
+- Add support for Object ValueType ([#96e184b](https://github.com/edgexfoundry/device-rest-go/commits/96e184b))
+- Update configuration for new CORS and Secrets File settings ([#5acad06](https://github.com/edgexfoundry/device-rest-go/commits/5acad06))
+
+### Bug Fixes 🐛
+- Update device resource RW permission to read-only ([#9eb04a7](https://github.com/edgexfoundry/device-rest-go/commits/9eb04a7))
+- Remove the code: condition that is always true ([#4225c14](https://github.com/edgexfoundry/device-rest-go/commits/4225c14))
+- Update all TOML to use quote and not single-quote ([#93dcba7](https://github.com/edgexfoundry/device-rest-go/commits/93dcba7))
+
+## [v2.0.0] Ireland - 2021-06-30  (Not Compatible with 1.x releases)
 
 ### Features ✨
 - Enable using MessageBus as the default ([#01c2e73](https://github.com/edgexfoundry/device-rest-go/commits/01c2e73))
