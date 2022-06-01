@@ -104,7 +104,7 @@ func main() {
 
 	err = installDevices()
 	if err != nil {
-		hooks.Error(fmt.Sprintf("edgex-device-camera:install: %v", err))
+		hooks.Error(fmt.Sprintf("edgex-device-rest:install: %v", err))
 		os.Exit(1)
 	}
 
