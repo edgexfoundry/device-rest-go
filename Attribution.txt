@@ -151,7 +151,7 @@ https://github.com/golang/text/blob/master/LICENSE
 gorilla/websocket (BSD-2) https://github.com/gorilla/websocket
 https://github.com/gorilla/websocket/blob/master/LICENSE
 
-eclipse/paho.mqtt.golang (Eclipse Public License 1.0) https://github.com/eclipse/paho.mqtt.golang
+eclipse/paho.mqtt.golang (Eclipse Public License 2.0) https://github.com/eclipse/paho.mqtt.golang
 https://github.com/eclipse/paho.mqtt.golang/blob/master/LICENSE
 
 hashicorp/errwrap (Mozilla Public License 2.0) https://github.com/hashicorp/errwrap
@@ -195,3 +195,6 @@ https://github.com/rcrowley/go-metrics/blob/master/LICENSE
 
 github.com/Microsoft/go-winio (MIT) https://github.com/Microsoft/go-winio
 https://github.com/microsoft/go-winio/blob/master/LICENSE
+
+golang.org/x/sync (Unspecified) https://cs.opensource.google/go/x/sync
+https://cs.opensource.google/go/x/sync/+/master:LICENSE
