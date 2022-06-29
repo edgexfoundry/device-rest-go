@@ -20,49 +20,57 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	hooks "github.com/canonical/edgex-snap-hooks/v2"
 	"github.com/canonical/edgex-snap-hooks/v2/log"
 	"github.com/canonical/edgex-snap-hooks/v2/options"
-	local "github.com/edgexfoundry/device-rest-go/hooks"
 )
+
+// ConfToEnv defines mappings from snap config keys to EdgeX environment variable
+// names that are used to override individual device-rest's [Device]  configuration
+// values via a .env file read by the snap service wrapper.
+//
+// The syntax to set a configuration key is:
+//
+// env.<section>.<keyname>
+//
+var ConfToEnv = map[string]string{
+	// [Device]
+	"device.update-last-connected": "DEVICE_UPDATELASTCONNECTED",
+	"device.use-message-bus":       "DEVICE_USEMESSAGEBUS",
+}
 
 var cli *hooks.CtlCli = hooks.NewSnapCtl()
 
-func main() {
+// configure is called by the main function
+func configure() {
 	var debug = false
 	var err error
 	var envJSON string
 
 	status, err := cli.Config("debug")
 	if err != nil {
-		fmt.Println(fmt.Sprintf("edgex-device-rest:configure: can't read value of 'debug': %v", err))
-		os.Exit(1)
+		log.Fatalf("edgex-device-rest:configure: can't read value of 'debug': %v", err)
 	}
 	if status == "true" {
 		debug = true
 	}
 
 	if err = hooks.Init(debug, "edgex-device-rest"); err != nil {
-		fmt.Println(fmt.Sprintf("edgex-device-rest:configure: initialization failure: %v", err))
-		os.Exit(1)
-
+		log.Fatalf("edgex-device-rest:configure: initialization failure: %v", err)
 	}
 
 	envJSON, err = cli.Config(hooks.EnvConfig)
 	if err != nil {
-		hooks.Error(fmt.Sprintf("Reading config 'env' failed: %v", err))
-		os.Exit(1)
+		log.Fatalf("Reading config 'env' failed: %v", err)
 	}
 
 	if envJSON != "" {
 		hooks.Debug(fmt.Sprintf("edgex-device-rest:configure: envJSON: %s", envJSON))
-		err = hooks.HandleEdgeXConfig("device-rest", envJSON, local.ConfToEnv)
+		err = hooks.HandleEdgeXConfig("device-rest", envJSON, ConfToEnv)
 		if err != nil {
-			hooks.Error(fmt.Sprintf("HandleEdgeXConfig failed: %v", err))
-			os.Exit(1)
+			log.Fatalf("HandleEdgeXConfig failed: %v", err)
 		}
 	}
 
@@ -71,8 +79,7 @@ func main() {
 	// are provided by default.
 	autostart, err := cli.Config(hooks.AutostartConfig)
 	if err != nil {
-		hooks.Error(fmt.Sprintf("Reading config 'autostart' failed: %v", err))
-		os.Exit(1)
+		log.Fatalf("Reading config 'autostart' failed: %v", err)
 	}
 	if autostart == "" {
 		hooks.Debug("edgex-device-rest autostart is NOT set, initializing to 'no'")
@@ -89,21 +96,18 @@ func main() {
 	case "yes":
 		err = cli.Start("device-rest", true)
 		if err != nil {
-			hooks.Error(fmt.Sprintf("Can't start service - %v", err))
-			os.Exit(1)
+			log.Fatalf("Can't start service - %v", err)
 		}
 	case "false":
 		// no action necessary
 	case "no":
 		// no action necessary
 	default:
-		hooks.Error(fmt.Sprintf("Invalid value for 'autostart' : %s", autostart))
-		os.Exit(1)
+		log.Fatalf("Invalid value for 'autostart' : %s", autostart)
 	}
 
 	log.SetComponentName("configure")
 	if err := options.ProcessAppConfig("device-rest"); err != nil {
-		hooks.Error(fmt.Sprintf("could not process options: %v", err))
-		os.Exit(1)
+		log.Fatalf(fmt.Sprintf("could not process options: %v", err))
 	}
 }

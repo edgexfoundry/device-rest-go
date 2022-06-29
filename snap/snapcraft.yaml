@@ -27,7 +27,7 @@ apps:
     adapter: full
     command: bin/device-rest $CONFIG_PRO_ARG $CONF_ARG $REGISTRY_ARG
     command-chain:
-      - bin/startup-env-var.sh
+       - bin/source-env-file.sh
     daemon: simple
     install-mode: disable
     environment:
@@ -46,16 +46,15 @@ plugs:
 
 parts:
 
-  hooks:
-    source: snap/local/hooks
+  helper-go:
+    source: snap/local/helper-go
     plugin: make
     build-snaps:
       - go/1.17/stable
     override-build: |
       cd $SNAPCRAFT_PART_SRC
       make build
-      install -DT ./cmd/configure/configure "$SNAPCRAFT_PART_INSTALL/snap/hooks/configure"
-      install -DT ./cmd/install/install "$SNAPCRAFT_PART_INSTALL/snap/hooks/install"
+      install -DT ./helper-go $SNAPCRAFT_PART_INSTALL/bin/helper-go
 
   device-rest:
     after: [metadata]
@@ -89,9 +88,11 @@ parts:
       install -DT "./LICENSE" \
          "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest/LICENSE"
 
-  config-common:
+  local-bin:
     plugin: dump
-    source: snap/local/runtime-helpers
+    source: snap/local/bin
+    organize:
+      source-env-file.sh: bin/source-env-file.sh
 
   metadata:
     plugin: nil
