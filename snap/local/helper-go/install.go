@@ -22,39 +22,13 @@ import (
 	"github.com/canonical/edgex-snap-hooks/v2/log"
 )
 
-// installProfiles copies the profile configuration.toml files from $SNAP to $SNAP_DATA.
+// installConfig copies all config files from $SNAP to $SNAP_DATA
 func installConfig() error {
 	path := "/config/device-rest/res"
 
 	err := hooks.CopyDir(
 		env.Snap+path,
 		env.SnapData+path)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func installDevices() error {
-	path := "/config/device-rest/res/devices"
-
-	err := hooks.CopyDir(
-		hooks.Snap+path,
-		hooks.SnapData+path)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func installDevProfiles() error {
-	path := "/config/device-rest/res/profiles"
-
-	err := hooks.CopyDir(
-		hooks.Snap+path,
-		hooks.SnapData+path)
 	if err != nil {
 		return err
 	}
@@ -69,15 +43,5 @@ func install() {
 	err := installConfig()
 	if err != nil {
 		log.Fatalf("error installing config file: %s", err)
-	}
-
-	err = installDevices()
-	if err != nil {
-		log.Fatalf("error installing devices config: %s", err)
-	}
-
-	err = installDevProfiles()
-	if err != nil {
-		log.Fatalf("error installing device profiles config: %s", err)
 	}
 }

@@ -25,6 +25,7 @@ import (
 	hooks "github.com/canonical/edgex-snap-hooks/v2"
 	"github.com/canonical/edgex-snap-hooks/v2/log"
 	"github.com/canonical/edgex-snap-hooks/v2/options"
+	"github.com/canonical/edgex-snap-hooks/v2/snapctl"
 )
 
 // ConfToEnv defines mappings from snap config keys to EdgeX environment variable
@@ -45,30 +46,19 @@ var cli *hooks.CtlCli = hooks.NewSnapCtl()
 
 // configure is called by the main function
 func configure() {
-	var debug = false
-	var err error
-	var envJSON string
 
-	status, err := cli.Config("debug")
-	if err != nil {
-		log.Fatalf("edgex-device-rest:configure: can't read value of 'debug': %v", err)
-	}
-	if status == "true" {
-		debug = true
-	}
+	const service = "device-rest"
 
-	if err = hooks.Init(debug, "edgex-device-rest"); err != nil {
-		log.Fatalf("edgex-device-rest:configure: initialization failure: %v", err)
-	}
+	log.SetComponentName("configure")
 
-	envJSON, err = cli.Config(hooks.EnvConfig)
+	// read and handle config
+	envJSON, err := cli.Config(hooks.EnvConfig)
 	if err != nil {
 		log.Fatalf("Reading config 'env' failed: %v", err)
 	}
-
 	if envJSON != "" {
-		hooks.Debug(fmt.Sprintf("edgex-device-rest:configure: envJSON: %s", envJSON))
-		err = hooks.HandleEdgeXConfig("device-rest", envJSON, ConfToEnv)
+		hooks.Debug(fmt.Sprintf("envJSON: %s", envJSON))
+		err = hooks.HandleEdgeXConfig(service, envJSON, ConfToEnv)
 		if err != nil {
 			log.Fatalf("HandleEdgeXConfig failed: %v", err)
 		}
@@ -77,37 +67,33 @@ func configure() {
 	// If autostart is not explicitly set, default to "no"
 	// as only example service configuration and profiles
 	// are provided by default.
-	autostart, err := cli.Config(hooks.AutostartConfig)
+	autostart, err := snapctl.Get("autostart").Run()
 	if err != nil {
 		log.Fatalf("Reading config 'autostart' failed: %v", err)
 	}
 	if autostart == "" {
-		hooks.Debug("edgex-device-rest autostart is NOT set, initializing to 'no'")
+		log.Debug("autostart is NOT set, initializing to 'no'")
 		autostart = "no"
 	}
 	autostart = strings.ToLower(autostart)
+	log.Debugf("autostart=%s", autostart)
 
-	hooks.Debug(fmt.Sprintf("edgex-device-rest autostart is %s", autostart))
-
-	// service is stopped/disabled by default in the install hook
+	// services are stopped/disabled by default in the install hook
 	switch autostart {
-	case "true":
-		fallthrough
-	case "yes":
-		err = cli.Start("device-rest", true)
+	case "true", "yes":
+		err = snapctl.Start(service).Enable().Run()
 		if err != nil {
-			log.Fatalf("Can't start service - %v", err)
+			log.Fatalf("Can't start service: %s", err)
 		}
-	case "false":
-		// no action necessary
-	case "no":
+	case "false", "no":
 		// no action necessary
 	default:
-		log.Fatalf("Invalid value for 'autostart' : %s", autostart)
+		log.Fatalf("Invalid value for 'autostart': %s", autostart)
 	}
 
-	log.SetComponentName("configure")
-	if err := options.ProcessAppConfig("device-rest"); err != nil {
-		log.Fatalf(fmt.Sprintf("could not process options: %v", err))
+	log.Info("Processing options")
+	err = options.ProcessAppConfig(service)
+	if err != nil {
+		log.Fatalf("could not process options: %v", err)
 	}
 }
