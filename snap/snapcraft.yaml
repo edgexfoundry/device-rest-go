@@ -75,18 +75,16 @@ parts:
 
       install -DT "./cmd/device-rest" "$SNAPCRAFT_PART_INSTALL/bin/device-rest"
 
-      install -d "$SNAPCRAFT_PART_INSTALL/config/device-rest/res/"
-
-      # copy all config files
-      mkdir -p $SNAPCRAFT_PART_INSTALL/config/device-rest/res
-      cp -rv cmd/res/configuration.toml $SNAPCRAFT_PART_INSTALL/config/device-rest/res/configuration.toml 
-      cp -rv cmd/res/devices $SNAPCRAFT_PART_INSTALL/config/device-rest/res/devices     
-      cp -rv cmd/res/profiles $SNAPCRAFT_PART_INSTALL/config/device-rest/res/profiles  
-
-      install -DT "./Attribution.txt" \
-         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest/Attribution.txt"
-      install -DT "./LICENSE" \
-         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest/LICENSE"
+      RES=$SNAPCRAFT_PART_INSTALL/config/device-rest/res/
+      mkdir -p $RES
+      cp    cmd/res/configuration.toml $RES
+      cp -r cmd/res/devices $RES
+      cp -r cmd/res/profiles $RES
+      
+      DOC=$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-rest
+      mkdir -p $DOC
+      cp Attribution.txt $DOC/Attribution.txt
+      cp LICENSE $DOC/LICENSE
 
   local-bin:
     plugin: dump
