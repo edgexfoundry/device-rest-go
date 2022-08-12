@@ -19,13 +19,9 @@
 package main
 
 import (
-	"fmt"
-	"strings"
-
 	hooks "github.com/canonical/edgex-snap-hooks/v2"
 	"github.com/canonical/edgex-snap-hooks/v2/log"
 	"github.com/canonical/edgex-snap-hooks/v2/options"
-	"github.com/canonical/edgex-snap-hooks/v2/snapctl"
 )
 
 // ConfToEnv defines mappings from snap config keys to EdgeX environment variable
@@ -42,58 +38,35 @@ var ConfToEnv = map[string]string{
 	"device.use-message-bus":       "DEVICE_USEMESSAGEBUS",
 }
 
-var cli *hooks.CtlCli = hooks.NewSnapCtl()
-
 // configure is called by the main function
 func configure() {
 
-	const service = "device-rest"
+	const app = "device-rest"
 
 	log.SetComponentName("configure")
 
-	// read and handle config
-	envJSON, err := cli.Config(hooks.EnvConfig)
+	log.Info("Processing legacy env options")
+	envJSON, err := hooks.NewSnapCtl().Config(hooks.EnvConfig)
 	if err != nil {
 		log.Fatalf("Reading config 'env' failed: %v", err)
 	}
 	if envJSON != "" {
-		hooks.Debug(fmt.Sprintf("envJSON: %s", envJSON))
-		err = hooks.HandleEdgeXConfig(service, envJSON, ConfToEnv)
+		log.Debugf("envJSON: %s", envJSON)
+		err = hooks.HandleEdgeXConfig(app, envJSON, ConfToEnv)
 		if err != nil {
 			log.Fatalf("HandleEdgeXConfig failed: %v", err)
 		}
 	}
 
-	// If autostart is not explicitly set, default to "no"
-	// as only example service configuration and profiles
-	// are provided by default.
-	autostart, err := snapctl.Get("autostart").Run()
+	log.Info("Processing config options")
+	err = options.ProcessConfig(app)
 	if err != nil {
-		log.Fatalf("Reading config 'autostart' failed: %v", err)
-	}
-	if autostart == "" {
-		log.Debug("autostart is NOT set, initializing to 'no'")
-		autostart = "no"
-	}
-	autostart = strings.ToLower(autostart)
-	log.Debugf("autostart=%s", autostart)
-
-	// services are stopped/disabled by default in the install hook
-	switch autostart {
-	case "true", "yes":
-		err = snapctl.Start(service).Enable().Run()
-		if err != nil {
-			log.Fatalf("Can't start service: %s", err)
-		}
-	case "false", "no":
-		// no action necessary
-	default:
-		log.Fatalf("Invalid value for 'autostart': %s", autostart)
+		log.Fatalf("could not process config options: %v", err)
 	}
 
-	log.Info("Processing options")
-	err = options.ProcessAppConfig(service)
+	log.Info("Processing autostart options")
+	err = options.ProcessAutostart(app)
 	if err != nil {
-		log.Fatalf("could not process options: %v", err)
+		log.Fatalf("could not process autostart options: %v", err)
 	}
 }
