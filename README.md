@@ -13,6 +13,20 @@ The current implementation is meant for one-way communication into EdgeX via asy
   - Redis DB
 - core-metadata
 
+## Build with NATS Messaging
+Currently, the NATS Messaging capability (NATS MessageBus) is opt-in at build time.
+This means that the published Docker image and Snaps do not include the NATS messaging capability.
+
+The following make commands will build the local binary or local Docker image with NATS messaging
+capability included.
+```makefile
+make build-nats
+make docker-nats
+```
+
+The locally built Docker image can then be used in place of the published Docker image in your compose file.
+See [Compose Builder](https://github.com/edgexfoundry/edgex-compose/tree/main/compose-builder#gen) `nat-bus` option to generate compose file for NATS and local dev images.
+
 ## REST Endpoints
 
 This device service creates the additional parametrized `REST` endpoint:
