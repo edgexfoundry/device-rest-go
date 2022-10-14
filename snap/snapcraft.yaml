@@ -18,9 +18,17 @@ confinement: strict
 slots:
   edgex-secretstore-token:
     interface: content
-    content: edgex-secretstore-token
     source:
       write: [$SNAP_DATA/device-rest]
+plugs:
+  device-rest-config:
+    interface: content
+    target: $SNAP_DATA/config/device-rest
+
+  # deprecated
+  device-config:
+    interface: content
+    target: $SNAP_DATA/config/device-rest
 
 apps:
   device-rest:
@@ -38,11 +46,6 @@ apps:
       DEVICE_DEVICESDIR: "$SNAP_DATA/config/device-rest/res/devices"
       SECRETSTORE_TOKENFILE: $SNAP_DATA/device-rest/secrets-token.json
     plugs: [network, network-bind]
-
-plugs:
-  device-config:
-    interface: content
-    target: $SNAP_DATA/config/device-rest
 
 parts:
 
