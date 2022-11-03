@@ -12,7 +12,29 @@
 - [go-mod-secrets](https://github.com/edgexfoundry/go-mod-secrets/blob/main/CHANGELOG.md) (indirect dependency)
 - [go-mod-configuration](https://github.com/edgexfoundry/go-mod-configuration/blob/main/CHANGELOG.md) (indirect dependency)
 
-## [v2.2.0] Kamakura - 2022-05-11  (Not Compatible with 1.x releases)
+## [v2.3.0] Levski - 2022-11-09  (Only compatible with the 2.x releases)
+
+### Features ✨
+
+- Add Service Metrics configuration ([#34f8305](https://github.com/edgexfoundry/device-rest-go/commits/34f8305))
+- Add NATS configuration and build option ([#74fc3e8](https://github.com/edgexfoundry/device-rest-go/commits/74fc3e8))
+- Add commanding via message configuration ([#9080408](https://github.com/edgexfoundry/device-rest-go/commits/9080408))
+- Add go-winio to attribution (new SPIFFE dependency) ([#2bcd884](https://github.com/edgexfoundry/device-rest-go/commits/2bcd884))
+- **snap:** add config interface with unique identifier ([#219](https://github.com/edgexfoundry/device-rest-go/issues/219)) ([#336f3e7](https://github.com/edgexfoundry/device-rest-go/commits/336f3e7))
+
+### Bug Fixes 🐛
+
+- **snap:** typo in install hook error log ([#192](https://github.com/edgexfoundry/device-rest-go/issues/192)) ([#6db4960](https://github.com/edgexfoundry/device-rest-go/commits/6db4960))
+
+### Code Refactoring ♻
+
+- **snap:** edgex-snap-hooks related upgrade ([#202](https://github.com/edgexfoundry/device-rest-go/issues/202)) ([#deaabcb](https://github.com/edgexfoundry/device-rest-go/commits/deaabcb))
+
+### Build 👷
+
+- Upgrade to Go 1.18 and alpine 3.16 ([#56a929b](https://github.com/edgexfoundry/device-rest-go/commits/56a929b))
+
+## [v2.2.0] Kamakura - 2022-05-11  (Only compatible with the 2.x releases)
 
 ### Features ✨
 - Enable security hardening ([#cc8c89e](https://github.com/edgexfoundry/device-rest-go/commits/cc8c89e))
@@ -39,7 +61,7 @@
 - gomod changes related for Go 1.17 ([#5bc210e](https://github.com/edgexfoundry/device-rest-go/commits/5bc210e))
 - Go 1.17 related changes ([#06c0ff5](https://github.com/edgexfoundry/device-rest-go/commits/06c0ff5))
 
-## [v2.1.0] Jakarta - 2021-11-18  (Not Compatible with 1.x releases)
+## [v2.1.0] Jakarta - 2021-11-18  (Only compatible with the 2.x releases)
 
 ### Features ✨
 - Add support for Object ValueType ([#96e184b](https://github.com/edgexfoundry/device-rest-go/commits/96e184b))
@@ -68,7 +90,7 @@
 ### Continuous Integration 🔄
 - Remove need for CI specific Dockerfile ([#b871a07](https://github.com/edgexfoundry/device-rest-go/commits/b871a07))
 
-## [v2.0.0] Ireland - 2021-06-30  (Not Compatible with 1.x releases)
+## [v2.0.0] Ireland - 2021-06-30  (Only compatible with the 2.x releases)
 
 ### Features ✨
 - Enable using MessageBus as the default ([#01c2e73](https://github.com/edgexfoundry/device-rest-go/commits/01c2e73))
