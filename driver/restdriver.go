@@ -284,8 +284,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)		
 		if err != nil {
-				fmt.Errorf("Read command failed. Cmd:%v err:%v \n", req.DeviceResourceName, err)
-				return responses, err
+			return responses, fmt.Errorf("Read command failed. Cmd:%v err:%v \n", req.DeviceResourceName, err)
 		}		
 		driver.logger.Debugf("Resp Body=%s", body)
 		
