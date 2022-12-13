@@ -275,7 +275,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		// Return immediately if status code is > 299
 		// Ref: https://pkg.go.dev/net/http
 		if resp.StatusCode > 299 {
-			return nil, fmt.Errorf("Get response failed with status code:", resp.StatusCode)
+			return nil, fmt.Errorf("Get response failed with status code: %v", resp.StatusCode)
 		}
 		
 		// Reached here, as the success response is received. Let's get 
@@ -457,7 +457,7 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 		// Return immediately if status code is > 299
 		// Ref: https://pkg.go.dev/net/http
 		if resp.StatusCode > 299 {
-			return fmt.Errorf("PUT request failed with status code:", resp.StatusCode)
+			return fmt.Errorf("PUT request failed with status code: %v", resp.StatusCode)
 		}
 	}
 
