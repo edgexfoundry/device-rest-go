@@ -19,10 +19,10 @@ package driver
 import (
 	"fmt"
 
-	dsModels "github.com/edgexfoundry/device-sdk-go/v2/pkg/models"
-	sdk "github.com/edgexfoundry/device-sdk-go/v2/pkg/service"
-	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients/logger"
-	"github.com/edgexfoundry/go-mod-core-contracts/v2/models"
+	dsModels "github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
+	sdk "github.com/edgexfoundry/device-sdk-go/v3/pkg/service"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/clients/logger"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/models"
 )
 
 type RestDriver struct {

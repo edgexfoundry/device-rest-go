@@ -31,7 +31,6 @@ import (
 // The syntax to set a configuration key is:
 //
 // env.<section>.<keyname>
-//
 var ConfToEnv = map[string]string{
 	// [Device]
 	"device.update-last-connected": "DEVICE_UPDATELASTCONNECTED",

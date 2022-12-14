@@ -22,11 +22,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/edgexfoundry/device-sdk-go/v2/pkg/models"
-	sdk "github.com/edgexfoundry/device-sdk-go/v2/pkg/service"
-	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients/logger"
-	"github.com/edgexfoundry/go-mod-core-contracts/v2/common"
-	model "github.com/edgexfoundry/go-mod-core-contracts/v2/models"
+	"github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
+	sdk "github.com/edgexfoundry/device-sdk-go/v3/pkg/service"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/clients/logger"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/common"
+	model "github.com/edgexfoundry/go-mod-core-contracts/v3/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

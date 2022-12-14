@@ -22,16 +22,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"net/http"
 	"time"
 
-	"github.com/edgexfoundry/device-sdk-go/v2/pkg/models"
-	sdk "github.com/edgexfoundry/device-sdk-go/v2/pkg/service"
-	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients/logger"
-	"github.com/edgexfoundry/go-mod-core-contracts/v2/common"
-	model "github.com/edgexfoundry/go-mod-core-contracts/v2/models"
+	"github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
+	sdk "github.com/edgexfoundry/device-sdk-go/v3/pkg/service"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/clients/logger"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/common"
+	model "github.com/edgexfoundry/go-mod-core-contracts/v3/models"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
 )
@@ -133,7 +133,7 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 
 func (handler RestHandler) readBody(request *http.Request) ([]byte, error) {
 	defer request.Body.Close()
-	body, err := ioutil.ReadAll(request.Body)
+	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		return nil, err
 	}
