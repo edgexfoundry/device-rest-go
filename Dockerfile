@@ -50,4 +50,4 @@ COPY --from=builder /device-rest-go/Attribution.txt /
 EXPOSE 59986
 
 ENTRYPOINT ["/device-rest"]
-CMD ["--cp=consul://edgex-core-consul:8500", "--confdir=/res", "--registry"]
+CMD ["--cp=consul://edgex-core-consul:8500", "--registry"]
