@@ -15,8 +15,8 @@
 package driver
 
 const (
-	ED_IP   = "ED_IP"
-	ED_PORT = "ED_PORT"
+	ED_IP         = "ED_IP"
+	ED_PORT       = "ED_PORT"
 	ED_URI_PREFIX = "ED_URI_Prefix"
 	ED_PARAMS     = "EndDevice_Params"
 	URLRawQuery   = "urlRawQuery"
