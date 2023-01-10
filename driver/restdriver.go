@@ -242,8 +242,8 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		// Now get the query parameters received in the request.
 		// These needs to be sent to the end device
 		// Query parameters needs to be converted to string to append to the uri
-		driver.logger.Debugf("URLRawQuery :%v", req.Attributes["urlRawQuery"])
-		reqParam := fmt.Sprint(req.Attributes["urlRawQuery"])
+		driver.logger.Debugf("URLRawQuery :%v", req.Attributes[URLRawQuery])
+		reqParam := fmt.Sprint(req.Attributes[URLRawQuery])
 
 		// Form URI from the end device parameters and request parameters and
 		// query parameters. Omit uri prefix if it is empty
@@ -300,7 +300,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		} else {
 			reading = string(body)
 		}
-		contentType := resp.Header.Get("Content-Type")
+		contentType := resp.Header.Get(common.ContentType)
 
 		val, err = driver.validateData(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
 		if err != nil {
@@ -382,8 +382,8 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 		// Now get the query parameters received in the request.
 		// These needs to be sent to the end device
 		// Query parameters needs to be converted to string to append to the uri
-		driver.logger.Debugf("URLRawQuery :%v", req.Attributes["urlRawQuery"])
-		reqParam := fmt.Sprint(req.Attributes["urlRawQuery"])
+		driver.logger.Debugf("URLRawQuery :%v", req.Attributes[URLRawQuery])
+		reqParam := fmt.Sprint(req.Attributes[URLRawQuery])
 
 		// Form URI from the end device parameters and request parameters and
 		// query parameters. Omit uri prefix if it is empty
@@ -416,14 +416,14 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 				return fmt.Errorf("PUT request creation failed")
 			}
 			// Set content type as application/json
-			request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+			request.Header.Set(common.ContentType, common.ContentTypeJSON)
 
 		case common.ValueTypeBool, common.ValueTypeString, common.ValueTypeUint8,
 			common.ValueTypeUint16, common.ValueTypeUint32, common.ValueTypeUint64,
 			common.ValueTypeInt8, common.ValueTypeInt16, common.ValueTypeInt32,
 			common.ValueTypeInt64, common.ValueTypeFloat32, common.ValueTypeFloat64:
 			// All other types
-			contentType := "text/plain"
+			contentType := common.ContentTypeText
 			_, err = driver.validateData(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
 			if err != nil {
 				// handle error
@@ -436,7 +436,7 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 				return fmt.Errorf("PUT request creation failed")
 			}
 			// Set content type as text/plain
-			request.Header.Set("Content-Type", "text/plain; charset=UTF-8")
+			request.Header.Set(common.ContentType, common.ContentTypeText)
 
 		default:
 			return fmt.Errorf("Unsupported value type: %v", valueType)

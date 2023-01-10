@@ -8,9 +8,9 @@
     [DeviceList.Protocols.EndDevice_Params]
 	  ED_IP = "127.0.0.1"
 	  ED_PORT = "5000"
-	  #ED_URI_Prefix = ""
+          #ED_URI_Prefix = ""
 	  ED_URI_Prefix = "api"
-  [[DeviceList.AutoEvents]]
-    Interval = "20s"
-    OnChange = false
-    SourceName = "jsonRes"
+  #[[DeviceList.AutoEvents]]
+  #  Interval = "20s"
+  #  OnChange = false
+  #  SourceName = "int8"
