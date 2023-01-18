@@ -1,111 +1,96 @@
-name: "ED_ID1"
+name: "sample-2way-rest-device"
 manufacturer: "HCL Corp."
-model: "Some 3rd party app sending data"
-labels:
- - "rest"
- - "ED_ID1"
-description: "REST Device"
+description: "REST Devices that handle two-way comunication"
 
 deviceResources:
-  - name: jsonRes
+  - name: json
     isHidden: false
     description: "Test resource 1 Message"
     properties:
       valueType: "Object"
       readWrite: "RW"
       mediaType: "application/json"
-  - name: stringRes
+  - name: device-info
     isHidden: false
-    description: "used to read DUT Info from the End device"
+    description: "used to read device Info from the End device"
     properties:
         valueType: "String"
         readWrite: "RW"
-        mediaType: "text/plain"
   - name: int8
     isHidden: false
     description: "Int8 value"
     properties:
       valueType: "Int8"
       readWrite: "RW"
-      mediaType: "text/plain"
   - name: int16
     isHidden: false
     description: "Int16 value"
     properties:
       valueType: "Int16"
       readWrite: "RW"
-      mediaType: "text/plain"
   - name: int32
     isHidden: false
     description: "Int32 value"
     properties:
       valueType: "Int32"
       readWrite: "RW"
-      mediaType: "text/plain"
   - name: int64
     isHidden: false
     description: "Int64 value"
     properties:
       valueType: "Int64"
       readWrite: "RW"
-      mediaType: "text/plain"
   - name: uint8
     isHidden: false
     description: "Uint8 value"
     properties:
       valueType: "Uint8"
       readWrite: "RW"
-      mediaType: "text/plain"
   - name: uint16
     isHidden: false
     description: "Uint16 value"
     properties:
       valueType: "Uint16"
       readWrite: "RW"
-      mediaType: "text/plain"
   - name: uint32
     isHidden: false
     description: "Uint32 value"
     properties:
       valueType: "Uint32"
       readWrite: "RW"
-      mediaType: "text/plain"
   - name: uint64
     isHidden: false
     description: "Uint64 value"
     properties:
       valueType: "Uint64"
       readWrite: "RW"
-      mediaType: "text/plain"
   - name: float32
     isHidden: true
     description: "Float32 value"
     properties:
       valueType: "Float32"
       readWrite: "RW"
-      mediaType: "text/plain"
   - name: float64
     isHidden: false
     description: "Float64 value"
     properties:
       valueType: "Float64"
       readWrite: "RW"
-      mediaType: "text/plain"
-  - name: jpegRes
+  - name: jpeg
     isHidden: false
     description: "JPEG Image binary message"
     properties:
       valueType: "Binary"
       readWrite: "R"
       mediaType: "image/jpeg"
-  - name: pngRes
+  - name: png
     isHidden: true
     description: "PNG Image binary message"
     properties:
       valueType: "Binary"
       readWrite: "R"
       mediaType: "image/png"
-  - name: "boolRes"
+  - name: bool
     isHidden: false
     description: "Boolean value"
     properties:

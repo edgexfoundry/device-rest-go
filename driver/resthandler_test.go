@@ -118,12 +118,12 @@ func TestNewCommandValue(t *testing.T) {
 					MediaType: currentTest.MimeType,
 				},
 			}
-			cmdVal, err := handler.newCommandValue(resource, currentTest.Value, currentTest.Type, currentTest.ContentType)
+			cmdVal, err := validateCommandValue(resource, currentTest.Value, currentTest.Type, currentTest.ContentType)
 			if currentTest.ErrorExpected {
 				assert.Error(t, err, "Expected an Error")
 			} else {
 				require.NoError(t, err, "Unexpected an Error")
-				assert.Equal(t, cmdVal.Value, currentTest.Expected)
+				assert.Equal(t, cmdVal, currentTest.Expected)
 			}
 		})
 	}

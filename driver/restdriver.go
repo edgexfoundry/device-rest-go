@@ -26,7 +26,6 @@ package driver
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	dsModels "github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
 	sdk "github.com/edgexfoundry/device-sdk-go/v3/pkg/service"
@@ -44,6 +43,13 @@ type RestDriver struct {
 	logger logger.LoggingClient
 }
 
+// Structure to hold end device protocol parameters
+type RestProtocolParams struct {
+	host string
+	port string
+	path string
+}
+
 // Initialize performs protocol-specific initialization for the device
 // service.
 func (driver *RestDriver) Initialize(logger logger.LoggingClient, asyncValues chan<- *dsModels.AsyncValues, deviceCh chan<- []dsModels.DiscoveredDevice) error {
@@ -52,175 +58,23 @@ func (driver *RestDriver) Initialize(logger logger.LoggingClient, asyncValues ch
 	return handler.Start()
 }
 
-// Validate data that is being received as part of the http request and response
-func (driver *RestDriver) validateData(resource models.DeviceResource, reading interface{}, valueType string, contentType string) (interface{}, error) {
-	var err error
-	castError := "failed to validate %v reading, %v"
-
-	var val interface{}
-	switch valueType {
-	case common.ValueTypeBinary:
-		var ok bool
-		val, ok = reading.([]byte)
-		if !ok {
-			return nil, fmt.Errorf(castError, resource.Name, "not []byte")
-		}
-		if contentType != resource.Properties.MediaType {
-			return nil, fmt.Errorf("wrong Content-Type: expected '%s' but received '%s'", resource.Properties.MediaType, contentType)
-		}
-	case common.ValueTypeObject:
-		if contentType != common.ContentTypeJSON {
-			return nil, fmt.Errorf("wrong Content-Type: expected '%s' but received '%s'", common.ContentTypeJSON, contentType)
-		}
-
-		data, ok := reading.([]byte)
-		if !ok {
-			return nil, fmt.Errorf(castError, resource.Name, "not []byte")
-		}
-
-		val = map[string]interface{}{}
-		if err := json.Unmarshal(data, &val); err != nil {
-			return nil, errors.New("unable to marshal JSON data to type Object")
-		}
-	case common.ValueTypeBool:
-		val, err = cast.ToBoolE(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-	case common.ValueTypeString:
-		val, err = cast.ToStringE(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-	case common.ValueTypeUint8:
-		val, err = cast.ToUint8E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkUintValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	case common.ValueTypeUint16:
-		val, err = cast.ToUint16E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkUintValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	case common.ValueTypeUint32:
-		val, err = cast.ToUint32E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkUintValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	case common.ValueTypeUint64:
-		val, err = cast.ToUint64E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkUintValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	case common.ValueTypeInt8:
-		val, err = cast.ToInt8E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkIntValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	case common.ValueTypeInt16:
-		val, err = cast.ToInt16E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkIntValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	case common.ValueTypeInt32:
-		val, err = cast.ToInt32E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkIntValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	case common.ValueTypeInt64:
-		val, err = cast.ToInt64E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkIntValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	case common.ValueTypeFloat32:
-		val, err = cast.ToFloat32E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkFloatValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	case common.ValueTypeFloat64:
-		val, err = cast.ToFloat64E(reading)
-		if err != nil {
-			return nil, fmt.Errorf(castError, resource.Name, err)
-		}
-		if err := checkFloatValueRange(valueType, val); err != nil {
-			return nil, err
-		}
-	default:
-		return nil, fmt.Errorf("return result fail, unsupported value type: %v", valueType)
-	}
-
-	return val, nil
-}
-
 // HandleReadCommands triggers a protocol Read operation for the specified device.
 func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[string]models.ProtocolProperties, reqs []dsModels.CommandRequest) (responses []*dsModels.CommandValue, err error) {
 
-	driver.logger.Debugf("In HandleReadCommands function")
 	var reading interface{}
 	var val interface{}
 	var result = &dsModels.CommandValue{}
 	var uri string
-
-	// Declare response structure,
-	// This will be filled with response received from HTTP GET request
+	var protocolParams RestProtocolParams
 	responses = make([]*dsModels.CommandValue, len(reqs))
 
 	// To send request to any end device, first we need to know end device details.
 	// Such as end device IP address, port number on which REST server is running etc.
 	// First get all these details from the device file
-	protocolParams, paramsExists := protocols[ED_PARAMS]
-	if !paramsExists {
-		return nil, fmt.Errorf("No End device parameters defined in the protocol list")
+	err = getDeviceParameters(&protocolParams, protocols)
+	if err != nil {
+		return nil, fmt.Errorf("Device parameters missing :%s \n", err.Error())
 	}
-
-	// Get end device IP address
-	address, ok := protocolParams[ED_IP]
-	if !ok {
-		return nil, fmt.Errorf("ED_IP not found")
-	}
-	driver.logger.Debugf("ED_IP:%v", address)
-
-	// Get end device port number
-	port, ok := protocolParams[ED_PORT]
-	if !ok {
-		return nil, fmt.Errorf("ED_PORT not found")
-	}
-	driver.logger.Debugf("ED_PORT:%v", port)
-
-	// Get end device URI prefix, This parameter will be empty for the end devices
-	// which do not have any prefix
-	uriPrefix, ok := protocolParams[ED_URI_PREFIX]
-	if !ok {
-		return nil, fmt.Errorf("ED_URI_PREFIX not found")
-	}
-	driver.logger.Debugf("ED_URI_PREFIX:%v", uriPrefix)
 
 	// Now, we have got required end device information, its time to create GET request
 	for i, req := range reqs {
@@ -229,30 +83,25 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		// RunningService returns the Service instance which is running.
 		// service.DeviceResource retrieves the specific DeviceResource instance
 		// from cache according to the Device name and Device Resource name
-		resourceName := req.DeviceResourceName
-
 		service := sdk.RunningService()
-
-		deviceResource, ok := service.DeviceResource(deviceName, resourceName)
+		deviceResource, ok := service.DeviceResource(deviceName, req.DeviceResourceName)
 		if !ok {
-			driver.logger.Errorf("Incoming reading ignored. Resource '%s' not found", resourceName)
 			return nil, fmt.Errorf("Resource not found")
 		}
 
 		// Now get the query parameters received in the request.
 		// These needs to be sent to the end device
 		// Query parameters needs to be converted to string to append to the uri
-		driver.logger.Debugf("URLRawQuery :%v", req.Attributes[URLRawQuery])
 		reqParam := fmt.Sprint(req.Attributes[URLRawQuery])
 
 		// Form URI from the end device parameters and request parameters and
 		// query parameters. Omit uri prefix if it is empty
-		if uriPrefix != "" {
-			uri = "http://" + address + ":" + port + "/" + uriPrefix + "/" + req.DeviceResourceName + "?" + reqParam + ""
+		if protocolParams.path != "" {
+			uri = fmt.Sprintf("http://%s:%s/%s/%s?%s", protocolParams.host, protocolParams.port, protocolParams.path, req.DeviceResourceName, reqParam)
 		} else {
-			uri = "http://" + address + ":" + port + "/" + req.DeviceResourceName + "?" + reqParam + ""
+			uri = fmt.Sprintf(uri, "http://%s:%s/%s?%s", protocolParams.host, protocolParams.port, req.DeviceResourceName, reqParam)
 		}
-		driver.logger.Debugf("uri = %v", uri)
+		driver.logger.Debugf("Sending REST Get command to uri = %v", uri)
 
 		// Now we have end device informationa and uri. This is enough to create
 		// GET request. For this first create http client instance.
@@ -287,7 +136,6 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		if err != nil {
 			return responses, fmt.Errorf("Read command failed. Cmd:%v err:%v \n", req.DeviceResourceName, err)
 		}
-		driver.logger.Debugf("Resp Body=%s", body)
 
 		// We are going to validate received content type against the expected
 		// content type of device resource. For doing this get content type from
@@ -302,7 +150,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		}
 		contentType := resp.Header.Get(common.ContentType)
 
-		val, err = driver.validateData(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
+		val, err = validateCommandValue(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
 		if err != nil {
 			return nil, fmt.Errorf("Recevice response data is not valid")
 		}
@@ -327,41 +175,18 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[string]models.ProtocolProperties, reqs []dsModels.CommandRequest,
 	params []*dsModels.CommandValue) error {
 
-	driver.logger.Debugf("In HandleWriteCommands function")
-
 	// Create http request variable to be used for creating new request
 	var request *http.Request
 	var err error
 	var uri string
-
+	var protocolParams RestProtocolParams
 	// To send request to any end device, first we need to know end device details.
 	// Such as end device IP address, port number on which REST server is running etc.
 	// First get all these details from the device file
-	protocolParams, paramsExists := protocols[ED_PARAMS]
-	if !paramsExists {
-		return fmt.Errorf("No End device parameters defined in the protocol list")
+	err = getDeviceParameters(&protocolParams, protocols)
+	if err != nil {
+		return fmt.Errorf("Device parameters missing :%s \n", err.Error())
 	}
-
-	// Get End device address
-	address, ok := protocolParams[ED_IP]
-	if !ok {
-		return fmt.Errorf("ED_IP not found")
-	}
-	driver.logger.Debugf("ED_IP:%v", address)
-
-	// Get End device port number
-	port, ok := protocolParams[ED_PORT]
-	if !ok {
-		return fmt.Errorf("ED_PORT not found")
-	}
-	driver.logger.Debugf("ED_PORT:%v", port)
-
-	// Get End devie URI prefix, this can be empty
-	uriPrefix, ok := protocolParams[ED_URI_PREFIX]
-	if !ok {
-		return fmt.Errorf("ED_URI_PREFIX not found")
-	}
-	driver.logger.Debugf("ED_URI_PREFIX:%v", uriPrefix)
 
 	for i, req := range reqs {
 		// First get device resource instance, needed during validation of the
@@ -369,28 +194,23 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 		// RunningService returns the Service instance which is running
 		// service.DeviceResource retrieves the specific DeviceResource instance
 		// from cache according to the Device name and Device Resource name
-		resourceName := req.DeviceResourceName
-
 		service := sdk.RunningService()
-
-		deviceResource, ok := service.DeviceResource(deviceName, resourceName)
+		deviceResource, ok := service.DeviceResource(deviceName, req.DeviceResourceName)
 		if !ok {
-			driver.logger.Errorf("Incoming Writing ignored. Resource '%s' not found", resourceName)
-			return nil
+			return fmt.Errorf("Incoming Writing ignored. Resource '%s' not found", req.DeviceResourceName)
 		}
 
 		// Now get the query parameters received in the request.
 		// These needs to be sent to the end device
 		// Query parameters needs to be converted to string to append to the uri
-		driver.logger.Debugf("URLRawQuery :%v", req.Attributes[URLRawQuery])
 		reqParam := fmt.Sprint(req.Attributes[URLRawQuery])
 
 		// Form URI from the end device parameters and request parameters and
 		// query parameters. Omit uri prefix if it is empty
-		if uriPrefix != "" {
-			uri = "http://" + address + ":" + port + "/" + uriPrefix + "/" + req.DeviceResourceName + "?" + reqParam + ""
+		if protocolParams.path != "" {
+			uri = fmt.Sprintf("http://%s:%s/%s/%s?%s", protocolParams.host, protocolParams.port, protocolParams.path, req.DeviceResourceName, reqParam)
 		} else {
-			uri = "http://" + address + ":" + port + "/" + req.DeviceResourceName + "?" + reqParam + ""
+			uri = fmt.Sprintf("http://%s:%s/%s?%s", protocolParams.host, protocolParams.port, req.DeviceResourceName, reqParam)
 		}
 
 		// Its time to form payload to be sent to end device.
@@ -398,15 +218,13 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 		// This data is validated against the expected value type of device resource
 		// With the data and uri create new http PUT request
 		// And, set the content type header for the PUT request
-		driver.logger.Debugf("params = %v", params[i])
 		reading := params[i].Value
 		valueType := deviceResource.Properties.ValueType
 		switch valueType {
 		case common.ValueTypeObject:
 			buf, _ := json.Marshal(reading)
-			driver.logger.Debugf("body = %v", buf)
 			if !json.Valid([]byte(buf)) {
-				driver.logger.Debugf("Invalid JSON string")
+				return fmt.Errorf("PUT request data is invalid JSON string")
 			}
 
 			// Create new PUT request, this will not send request to end device
@@ -424,7 +242,7 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 			common.ValueTypeInt64, common.ValueTypeFloat32, common.ValueTypeFloat64:
 			// All other types
 			contentType := common.ContentTypeText
-			_, err = driver.validateData(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
+			_, err = validateCommandValue(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
 			if err != nil {
 				// handle error
 				return fmt.Errorf("PUT request data is not valid")
@@ -445,12 +263,12 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 		// Now we have created http PUT request instance with uri, and payload. This
 		// is enough to initiate PUT request to end device.
 		// First create new http client and initiate PUT request
+		driver.logger.Debugf("Send PUT command to %s", uri)
 		client := &http.Client{}
-
 		resp, err := client.Do(request)
 		if err != nil {
 			// handle error
-			return fmt.Errorf("PUT request failed")
+			return fmt.Errorf("PUT request failed to uri = %s", uri)
 		}
 
 		// Htpp status codes till 299 fall under informational/ success category
@@ -467,6 +285,34 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 		}
 	}
 
+	return nil
+}
+
+// Check for the existance of device parameters in the device file and get them
+func getDeviceParameters(restDeviceProtocolParams *RestProtocolParams, protocols map[string]models.ProtocolProperties) error {
+	protocolParams, paramsExists := protocols[RESTProtocol]
+	if !paramsExists {
+		return fmt.Errorf("No End device parameters defined in the protocol list")
+	}
+	var ok bool
+	// Get end device IP address
+	restDeviceProtocolParams.host, ok = protocolParams[RESTHost]
+	if !ok {
+		return fmt.Errorf("RESTHost not found")
+	}
+
+	// Get end device port number
+	restDeviceProtocolParams.port, ok = protocolParams[RESTPort]
+	if !ok {
+		return fmt.Errorf("RESTPort not found")
+	}
+
+	// Get end device URI prefix, This parameter will be empty for the end devices
+	// which do not have any prefix
+	restDeviceProtocolParams.path, ok = protocolParams[RESTPath]
+	if !ok {
+		return fmt.Errorf("RESTPath not found")
+	}
 	return nil
 }
 

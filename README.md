@@ -147,30 +147,30 @@ End device will respond to GET and PUT requests received from EdgeX. For this en
 To use this device service, device profile and device file needs to be configured. 
 This device service use the standard configuration defined by the **Device SDK**. 
 
-The `DeviceList` configuration is standard except that it is mandatory to provide end device parameters in the `DeviceList.Protocols.EndDevice_Params` structure. The following is a sample `DeviceList` that works with the sample device profiles referenced below. `ED_URI_Prefix` parameter is optional.
+The `DeviceList` configuration is standard except that it is mandatory to provide end device parameters in the `DeviceList.Protocols.EndDevice_Params` structure. The following is a sample `DeviceList` that works with the sample device profiles referenced below. `path` parameter is optional.
 
 ```toml
 [[DeviceList]]
-  Name = "ED_ID1"
-  ProfileName = "ED_ID1"
+  Name = "2way-rest-device"
+  ProfileName = "sample-2way-rest-device"
   Description = "RESTful Device that sends data"
-  Labels = [ "rest", "ED_ID1" ]
+  Labels = [ "rest", "2way-rest-device" ]
   [DeviceList.Protocols]
-    [DeviceList.Protocols.EndDevice_Params]
-	  ED_IP = "127.0.0.1"
-	  ED_PORT = "5000"
-	  ED_URI_Prefix = "api"
+    [DeviceList.Protocols.REST]
+	  Host = "127.0.0.1"
+	  Port = "5000"
+	  Path = "api"
   [[DeviceList.AutoEvents]]
     Interval = "20s"
     OnChange = false
-    SourceName = "jsonRes"
+    SourceName = "json"
 ```
 
 ### Device Profile
 
 This section shows sample device profile defined for REST client functionality.
 
-- [**ED_ID1**](cmd/res/profiles/ED_ID1.yaml)
+- [**sample-2way-rest-device**](cmd/res/profiles/sample-2way-rest-device.yaml)
 
 ### Testing/Simulation of REST client
 
@@ -199,9 +199,9 @@ Using `curl` command-line utility or `PostMan` we can test commanding functionai
 
 Example GET request to `int8` device resource using curl command-line utility is as shown below.
 ```
-   $ curl --request GET http://localhost:59882/api/v2/device/name/ED_ID1/int8
+   $ curl --request GET http://localhost:59882/api/v2/device/name/2way-rest-device/int8
 ```
-`ED_ID1` is the device name as defined in the device file.
+`2way-rest-device` is the device name as defined in the device file.
 Example expected success response from the end device is as shown below.
 
 ```
@@ -209,16 +209,16 @@ Example expected success response from the end device is as shown below.
    "apiVersion" : "v2",
    "event" : {
       "apiVersion" : "v2",
-      "deviceName" : "ED_ID1",
+      "deviceName" : "2way-rest-device",
       "id" : "46baf3d5-98fd-4073-b52e-801660b01ce6",
       "origin" : 1670506568209119757,
-      "profileName" : "ED_ID1",
+      "profileName" : "sample-2way-rest-device",
       "readings" : [
          {
-            "deviceName" : "ED_ID1",
+            "deviceName" : "2way-rest-device",
             "id" : "c7d4d4fe-13f5-423a-8d62-0e57f8dbc063",
             "origin" : 1670506568209111164,
-            "profileName" : "ED_ID1",
+            "profileName" : "sample-2way-rest-device",
             "resourceName" : "int8",
             "value" : "111",
             "valueType" : "Int8"
@@ -234,9 +234,9 @@ Example expected success response from the end device is as shown below.
 
 Example PUT request to `int8` device resource using curl command-line utility is as shown below.
 ```
-   $ curl -i -X PUT -H "Content-Type: application/json" -d '{"int8":12}' http://localhost:59882/api/v2/device/name/ED_ID1/int8
+   $ curl -i -X PUT -H "Content-Type: application/json" -d '{"int8":12}' http://localhost:59882/api/v2/device/name/2way-rest-device/int8
 ```
-`ED_ID1` is the device name as defined in the device list.
+`2way-rest-device` is the device name as defined in the device list.
 
 Example expected success response from the end device is as shown below.
 ```

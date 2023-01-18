@@ -76,6 +76,7 @@ func (handler RestHandler) addContext(next func(http.ResponseWriter, *http.Reque
 }
 
 func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, request *http.Request) {
+	var result = &models.CommandValue{}
 	vars := mux.Vars(request)
 	deviceName := vars[common.DeviceName]
 	resourceName := vars[common.ResourceName]
@@ -113,17 +114,26 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 		reading = string(data)
 	}
 
-	value, err := handler.newCommandValue(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
+	value, err := validateCommandValue(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
+	if err != nil {
+		handler.logger.Errorf("Incoming reading ignored. Unable to validate Command Value for Device=%s Command=%s: %s",
+			deviceName, resourceName, err.Error())
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	result, err = models.NewCommandValue(deviceResource.Name, deviceResource.Properties.ValueType, value)
 	if err != nil {
 		handler.logger.Errorf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s",
 			deviceName, resourceName, err.Error())
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
+	result.Origin = time.Now().UnixNano()
 
 	asyncValues := &models.AsyncValues{
 		DeviceName:    deviceName,
-		CommandValues: []*models.CommandValue{value},
+		CommandValues: []*models.CommandValue{result},
 	}
 
 	handler.logger.Debugf("Incoming reading received: Device=%s Resource=%s", deviceName, resourceName)
@@ -159,9 +169,8 @@ func deviceHandler(writer http.ResponseWriter, request *http.Request) {
 	handler.processAsyncRequest(writer, request)
 }
 
-func (handler RestHandler) newCommandValue(resource model.DeviceResource, reading interface{}, valueType string, contentType string) (*models.CommandValue, error) {
+func validateCommandValue(resource model.DeviceResource, reading interface{}, valueType string, contentType string) (interface{}, error) {
 	var err error
-	var result = &models.CommandValue{}
 	castError := "failed to parse %v reading, %v"
 
 	var val interface{}
@@ -283,13 +292,7 @@ func (handler RestHandler) newCommandValue(resource model.DeviceResource, readin
 		return nil, fmt.Errorf("return result fail, unsupported value type: %v", valueType)
 	}
 
-	result, err = models.NewCommandValue(resource.Name, valueType, val)
-	if err != nil {
-		return nil, err
-	}
-
-	result.Origin = time.Now().UnixNano()
-	return result, nil
+	return val, nil
 }
 
 func checkUintValueRange(valueType string, val interface{}) error {
