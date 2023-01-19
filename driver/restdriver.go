@@ -71,7 +71,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 	// To send request to any end device, first we need to know end device details.
 	// Such as end device IP address, port number on which REST server is running etc.
 	// First get all these details from the device file
-	err = getDeviceParameters(&protocolParams, protocols)
+	protocolParams, err = getDeviceParameters(protocols)
 	if err != nil {
 		return nil, fmt.Errorf("Device parameters missing :%s \n", err.Error())
 	}
@@ -183,7 +183,7 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 	// To send request to any end device, first we need to know end device details.
 	// Such as end device IP address, port number on which REST server is running etc.
 	// First get all these details from the device file
-	err = getDeviceParameters(&protocolParams, protocols)
+	protocolParams, err = getDeviceParameters(protocols)
 	if err != nil {
 		return fmt.Errorf("Device parameters missing :%s \n", err.Error())
 	}
@@ -289,31 +289,32 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 }
 
 // Check for the existance of device parameters in the device file and get them
-func getDeviceParameters(restDeviceProtocolParams *RestProtocolParams, protocols map[string]models.ProtocolProperties) error {
+func getDeviceParameters(protocols map[string]models.ProtocolProperties) (RestProtocolParams, error) {
+	var restDeviceProtocolParams RestProtocolParams
 	protocolParams, paramsExists := protocols[RESTProtocol]
 	if !paramsExists {
-		return fmt.Errorf("No End device parameters defined in the protocol list")
+		return restDeviceProtocolParams, fmt.Errorf("No End device parameters defined in the protocol list")
 	}
 	var ok bool
 	// Get end device IP address
 	restDeviceProtocolParams.host, ok = protocolParams[RESTHost]
 	if !ok {
-		return fmt.Errorf("RESTHost not found")
+		return restDeviceProtocolParams, fmt.Errorf("RESTHost not found")
 	}
 
 	// Get end device port number
 	restDeviceProtocolParams.port, ok = protocolParams[RESTPort]
 	if !ok {
-		return fmt.Errorf("RESTPort not found")
+		return restDeviceProtocolParams, fmt.Errorf("RESTPort not found")
 	}
 
 	// Get end device URI prefix, This parameter will be empty for the end devices
 	// which do not have any prefix
 	restDeviceProtocolParams.path, ok = protocolParams[RESTPath]
 	if !ok {
-		return fmt.Errorf("RESTPath not found")
+		return restDeviceProtocolParams, fmt.Errorf("RESTPath not found")
 	}
-	return nil
+	return restDeviceProtocolParams, nil
 }
 
 // Stop the protocol-specific DS code to shutdown gracefully, or

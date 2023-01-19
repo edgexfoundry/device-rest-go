@@ -3,7 +3,7 @@
 
 EdgeX device service for REST protocol
 
-This device service supports two-way communication. REST server provides easy way for 3'rd party applications, such as Point of Sale, CV Analytics, etc., to push data into EdgeX via the REST protocol. REST client allows EdgeX to send GET and PUT request to end device. 
+This device service supports two-way communication for commanding. REST endpoints provides easy way for 3'rd party applications, such as Point of Sale, CV Analytics, etc., to push async data into EdgeX via the REST protocol. Commands allows EdgeX to send GET and PUT request to end device. 
 
 ## Runtime Prerequisite    
 
@@ -27,10 +27,13 @@ make docker-nats
 The locally built Docker image can then be used in place of the published Docker image in your compose file.
 See [Compose Builder](https://github.com/edgexfoundry/edgex-compose/tree/main/compose-builder#gen) `nat-bus` option to generate compose file for NATS and local dev images.
 
-## REST Server
+## REST Endpoints
 
-This device service creates the additional parametrized `REST` endpoint:
-End device will be pushing data to these endpoints. For this end device will be running with REST client.
+This device service creates the additional parametrized `REST` endpoints
+
+### Async
+
+End device will be pushing async data to these endpoints.
 
 ```
 /api/v2/resource/{deviceName}/{resourceName}
@@ -45,11 +48,29 @@ The data, `text` or `binary`,  posted to this endpoint is type validated and typ
 
 > *Note: All non-binary data is consumed as text. The text is casted to the specific type of the specified `device resource` once it passes type validation.*
 
-### Configuration
+### Commands
 
+Use the following core command service API format to execute commands against the rest device service.
+
+```
+/api/v2/device/name/{deviceName}/{resourceName}
+```
+
+- `deviceName` refers to a `device` managed by the REST device service.
+- `resourceName`refers to the `device resource` defined in the `device profile` associated with the given `deviceName` .
+
+Upon receiving the command, device service has to forward this command to end device. For this device service reads the end device protocol parameters from the device list protocol properties. Then constructs uri based on the end device protocol parameters, query parameters & device resource.
+
+For GET command creates new http GET request using uri and send the GET request to end device. The response received from end device is type validated and sent as response to the GET command.
+
+For PUT command, the PUT data, `text` or `binary`,  posted to this endpoint is type validated and type casted (text data only) to the type defined by the specified `device resource`. Then creates new http PUT request using uri, validated PUT data and then send the http PUT request to end device. The end device response status code is sent in response to the PUT command. 
+
+## Configuration
+
+To use this device service, device profile and device file needs to be configured. 
 This device service use the standard configuration defined by the **Device SDK**. 
 
-The `DeviceList` configuration is standard except that the `DeviceList.Protocols` can be empty. The following is a sample `DeviceList` that works with the sample device profiles referenced below.
+The `DeviceList` configuration is standard except that it is mandatory to provide end device parameters in the `DeviceList.Protocols.EndDevice_Params` structure for 2way-rest-device functionality. The following is a sample `DeviceList` that works with the sample device profiles referenced below. `path` parameter is optional.
 
 ```toml
 [[DeviceList]]
@@ -73,17 +94,34 @@ The `DeviceList` configuration is standard except that the `DeviceList.Protocols
   Labels = [ "rest", "numeric", "float", "int" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
+[[DeviceList]]
+  Name = "2way-rest-device"
+  ProfileName = "sample-2way-rest-device"
+  Description = "RESTful Device that sends data"
+  Labels = [ "rest", "2way-rest-device" ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.REST]
+	  Host = "127.0.0.1"
+	  Port = "5000"
+	  Path = "api"
+  [[DeviceList.AutoEvents]]
+    Interval = "20s"
+    OnChange = false
+    SourceName = "json"
 ```
 
-### Device Profile
+## Device Profile
 
-As with all device services the `device profile` is where the **Device Name**, **Device Resources** and **Device Commands** are define. The parameterized REST endpoint described above references these definitions. Each `Device` has it's own device profile. There are three sample device profiles that define the devices referenced in the above sample configuration.
+As with all device services the `device profile` is where the **Device Name**, **Device Resources** and **Device Commands** are define. The parameterized REST endpoints described above references these definitions. Each `Device` has it's own device profile. There are four sample device profiles that define the devices referenced in the above sample configuration.
 
 - [**sample-image-device**](cmd/res/profiles/sample-image-device.yaml)
 - [**sample-json-device**](cmd/res/profiles/sample-json-device.yaml)
 - [**sample-numeric-device**](cmd/res/profiles/sample-numeric-device.yaml)
+- [**sample-2way-rest-device**](cmd/res/profiles/sample-2way-rest-device.yaml)
 
-### Testing/Simulation of REST server
+## Testing/Simulation
+
+### Async
 
 The best way to test this service with simulated data is to use **PostMan** to send data to the following endpoints defined for the above device profiles.
 
@@ -137,44 +175,9 @@ The best way to test this service with simulated data is to use **PostMan** to s
     500.568
     ```
 
-## REST Client
+### Commands
 
-This device service allows EdgeX to send GET/PUT request to end device.
-End device will respond to GET and PUT requests received from EdgeX. For this end device will be running REST server.
-
-### Configuration
-
-To use this device service, device profile and device file needs to be configured. 
-This device service use the standard configuration defined by the **Device SDK**. 
-
-The `DeviceList` configuration is standard except that it is mandatory to provide end device parameters in the `DeviceList.Protocols.EndDevice_Params` structure. The following is a sample `DeviceList` that works with the sample device profiles referenced below. `path` parameter is optional.
-
-```toml
-[[DeviceList]]
-  Name = "2way-rest-device"
-  ProfileName = "sample-2way-rest-device"
-  Description = "RESTful Device that sends data"
-  Labels = [ "rest", "2way-rest-device" ]
-  [DeviceList.Protocols]
-    [DeviceList.Protocols.REST]
-	  Host = "127.0.0.1"
-	  Port = "5000"
-	  Path = "api"
-  [[DeviceList.AutoEvents]]
-    Interval = "20s"
-    OnChange = false
-    SourceName = "json"
-```
-
-### Device Profile
-
-This section shows sample device profile defined for REST client functionality.
-
-- [**sample-2way-rest-device**](cmd/res/profiles/sample-2way-rest-device.yaml)
-
-### Testing/Simulation of REST client
-
-This device service supports commanding functionality for the data types as shown in below table.
+This device service supports commanding functionality with a sample profile for the data types as shown in below table.
 
 | Data Type | GET                | PUT                |
 |---------	|------------------- |------------------- |
@@ -195,12 +198,16 @@ This device service supports commanding functionality for the data types as show
 
 Using `curl` command-line utility or `PostMan` we can test commanding functionaity of the REST device service.
 
-**GET Request**
+**GET Command**
 
 Example GET request to `int8` device resource using curl command-line utility is as shown below.
 ```
    $ curl --request GET http://localhost:59882/api/v2/device/name/2way-rest-device/int8
 ```
+Example GET request to `int8` device resource using **PostMan** is as shown below.
+
+- http://localhost:59882/api/v2/device/name/2way-rest-device/int8
+
 `2way-rest-device` is the device name as defined in the device file.
 Example expected success response from the end device is as shown below.
 
@@ -230,12 +237,25 @@ Example expected success response from the end device is as shown below.
    } 
 ```
 
-**PUT Request**
+
+**PUT Command**
 
 Example PUT request to `int8` device resource using curl command-line utility is as shown below.
 ```
    $ curl -i -X PUT -H "Content-Type: application/json" -d '{"int8":12}' http://localhost:59882/api/v2/device/name/2way-rest-device/int8
 ```
+Example PUT request to `int8` device resource using **PostMan** is as shown below.
+- http://localhost:59882/api/v2/device/name/2way-rest-device/int8
+  - PUTting a text integer value will result in the  `Value` of the `Command` being set to the string representation of the value as an `Int8`. The PUT value is verified to be a valid `Int8` value. 
+  
+  - A 400 error will be returned if the PUTted value fails the `Int8` type verification.
+  
+  - Example test `int8` value to post:
+  
+    ```
+    12
+    ```
+
 `2way-rest-device` is the device name as defined in the device list.
 
 Example expected success response from the end device is as shown below.
@@ -248,6 +268,7 @@ Content-Length: 37
 
 {"apiVersion":"v2","statusCode":200}
 ```
+
 ## AutoEvents
 
 Auto events are supported for the resources mentioned in the device profile for example `int8` device resource.
