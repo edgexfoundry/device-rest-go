@@ -196,7 +196,47 @@ This device service supports commanding functionality with a sample profile for 
 | Float32   | :heavy_check_mark: | :heavy_check_mark: |
 | Float64   | :heavy_check_mark: | :heavy_check_mark: |
 
-Using `curl` command-line utility or `PostMan` we can test commanding functionaity of the REST device service.
+Using `curl` command-line utility or `PostMan` we can send GET/PUT request to EdgeX. These commands are explained in `GET Command` section below. End device can be anything, For example `nodejs based REST emulator` is used as end device for testing commanding functionaity of the REST device service. Example end device code is mentioned in `End Device` section below.
+
+**End Device**
+
+Example end device code using `nodejs` is as shown below. This example code is having endpoint for `int8` resource. To test GET/PUT commands for other resources, this code needs to be expanded in the same way for other device resources also.
+
+```
+///////////////////BUILD AND RUN INSTRUCTIONS/////////////////////
+// Install node, npm, express module in target machine
+// Run using "node end-device.js"
+/////////////////////////////////////////////////////////////////
+
+var express = require('express');
+var bodyParser = require('body-parser')
+var app = express();
+
+var textParser = bodyParser.text({type: '*/*'})
+
+//-128 to 127
+var int8 = 111
+
+// GET int8
+app.get('/api/int8', function (req, res) {
+console.log("Get int8 request");
+res.end(int8.toString());
+})
+
+// PUT int8
+app.put('/api/int8', textParser, function (req, res) {
+console.log("Put int8 request");
+console.log(req.body);
+int8 = req.body;
+res.end(int8);
+})
+
+var server = app.listen(5000, function () {
+var host = server.address().address
+var port = server.address().port
+console.log("Server listening at http://%s:%s", host, port)
+})
+```
 
 **GET Command**
 
