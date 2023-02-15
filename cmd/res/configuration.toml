@@ -37,9 +37,6 @@ TokenFile = "/tmp/edgex/secrets/device-rest/secrets-token.json"
   TrustDomain = "edgexfoundry.org"
   EndpointSocket = "/tmp/edgex/secrets/spiffe/public/api.sock"
   RequiredSecrets = "redisdb"
-  
-[Device]
-UseMessageBus = true
 
 # Driver configs
 [Driver]
