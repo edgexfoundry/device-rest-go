@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/edgexfoundry/device-sdk-go/v3 v3.0.0-dev.43
-	github.com/edgexfoundry/go-mod-core-contracts/v3 v3.0.0-dev.24
+	github.com/edgexfoundry/go-mod-core-contracts/v3 v3.0.0-dev.25
 	github.com/gorilla/mux v1.8.0
 	github.com/spf13/cast v1.5.0
 	github.com/stretchr/testify v1.8.2
