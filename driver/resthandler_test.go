@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2019 Intel Corporation
-// Copyright (c) 2021 IOTech Ltd
+// Copyright (c) 2021-2023 IOTech Ltd
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
-	sdk "github.com/edgexfoundry/device-sdk-go/v3/pkg/service"
+	"github.com/edgexfoundry/device-sdk-go/v3/pkg/interfaces/mocks"
+	sdkModels "github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
 	"github.com/edgexfoundry/go-mod-core-contracts/v3/clients/logger"
 	"github.com/edgexfoundry/go-mod-core-contracts/v3/common"
-	model "github.com/edgexfoundry/go-mod-core-contracts/v3/models"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -34,11 +34,12 @@ import (
 var handler *RestHandler
 
 func TestMain(m *testing.M) {
-	service := &sdk.DeviceService{}
-	logger := logger.NewMockClient()
-	asyncValues := make(chan<- *models.AsyncValues)
+	asyncValues := make(chan *sdkModels.AsyncValues)
+	service := &mocks.DeviceServiceSDK{}
+	service.On("LoggingClient").Return(logger.NewMockClient())
+	service.On("AsyncValuesChannel").Return(asyncValues)
 
-	handler = NewRestHandler(service, logger, asyncValues)
+	handler = NewRestHandler(service)
 	os.Exit(m.Run())
 }
 
@@ -112,9 +113,9 @@ func TestNewCommandValue(t *testing.T) {
 
 	for _, currentTest := range tests {
 		t.Run(currentTest.Name, func(t *testing.T) {
-			resource := model.DeviceResource{
+			resource := models.DeviceResource{
 				Name: "test",
-				Properties: model.ResourceProperties{
+				Properties: models.ResourceProperties{
 					MediaType: currentTest.MimeType,
 				},
 			}
