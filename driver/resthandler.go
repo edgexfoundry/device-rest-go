@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2019 Intel Corporation
-// Copyright (c) 2021 IOTech Ltd
+// Copyright (c) 2021-2023 IOTech Ltd
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/edgexfoundry/device-sdk-go/v3/pkg/interfaces"
 	"github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
-	sdk "github.com/edgexfoundry/device-sdk-go/v3/pkg/service"
 	"github.com/edgexfoundry/go-mod-core-contracts/v3/clients/logger"
 	"github.com/edgexfoundry/go-mod-core-contracts/v3/common"
 	model "github.com/edgexfoundry/go-mod-core-contracts/v3/models"
@@ -42,16 +42,16 @@ const (
 )
 
 type RestHandler struct {
-	service     *sdk.DeviceService
+	service     interfaces.DeviceServiceSDK
 	logger      logger.LoggingClient
 	asyncValues chan<- *models.AsyncValues
 }
 
-func NewRestHandler(service *sdk.DeviceService, logger logger.LoggingClient, asyncValues chan<- *models.AsyncValues) *RestHandler {
+func NewRestHandler(sdk interfaces.DeviceServiceSDK) *RestHandler {
 	handler := RestHandler{
-		service:     service,
-		logger:      logger,
-		asyncValues: asyncValues,
+		service:     sdk,
+		logger:      sdk.LoggingClient(),
+		asyncValues: sdk.AsyncValuesChannel(),
 	}
 
 	return &handler

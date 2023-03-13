@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2019 Intel Corporation
+// Copyright (c) 2023 IOTech Ltd
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,24 +27,27 @@ package driver
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-	dsModels "github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
-	sdk "github.com/edgexfoundry/device-sdk-go/v3/pkg/service"
-	"github.com/edgexfoundry/go-mod-core-contracts/v3/clients/logger"
-	"github.com/edgexfoundry/go-mod-core-contracts/v3/common"
-	"github.com/edgexfoundry/go-mod-core-contracts/v3/models"
-	"github.com/spf13/cast"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/edgexfoundry/device-sdk-go/v3/pkg/interfaces"
+	dsModels "github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/clients/logger"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/common"
+	"github.com/edgexfoundry/go-mod-core-contracts/v3/models"
+	"github.com/spf13/cast"
 )
 
 type RestDriver struct {
+	sdk    interfaces.DeviceServiceSDK
 	logger logger.LoggingClient
 }
 
-// Structure to hold end device protocol parameters
+// RestProtocolParams holds end device protocol parameters
 type RestProtocolParams struct {
 	host string
 	port string
@@ -52,15 +56,14 @@ type RestProtocolParams struct {
 
 // Initialize performs protocol-specific initialization for the device
 // service.
-func (driver *RestDriver) Initialize(logger logger.LoggingClient, asyncValues chan<- *dsModels.AsyncValues, deviceCh chan<- []dsModels.DiscoveredDevice) error {
-	driver.logger = logger
-	handler := NewRestHandler(sdk.RunningService(), logger, asyncValues)
+func (driver *RestDriver) Initialize(sdk interfaces.DeviceServiceSDK) error {
+	driver.logger = sdk.LoggingClient()
+	handler := NewRestHandler(sdk)
 	return handler.Start()
 }
 
 // HandleReadCommands triggers a protocol Read operation for the specified device.
 func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[string]models.ProtocolProperties, reqs []dsModels.CommandRequest) (responses []*dsModels.CommandValue, err error) {
-
 	var reading interface{}
 	var val interface{}
 	var result = &dsModels.CommandValue{}
@@ -83,8 +86,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		// RunningService returns the Service instance which is running.
 		// service.DeviceResource retrieves the specific DeviceResource instance
 		// from cache according to the Device name and Device Resource name
-		service := sdk.RunningService()
-		deviceResource, ok := service.DeviceResource(deviceName, req.DeviceResourceName)
+		deviceResource, ok := driver.sdk.DeviceResource(deviceName, req.DeviceResourceName)
 		if !ok {
 			return nil, fmt.Errorf("Resource not found")
 		}
@@ -194,8 +196,7 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 		// RunningService returns the Service instance which is running
 		// service.DeviceResource retrieves the specific DeviceResource instance
 		// from cache according to the Device name and Device Resource name
-		service := sdk.RunningService()
-		deviceResource, ok := service.DeviceResource(deviceName, req.DeviceResourceName)
+		deviceResource, ok := driver.sdk.DeviceResource(deviceName, req.DeviceResourceName)
 		if !ok {
 			return fmt.Errorf("Incoming Writing ignored. Resource '%s' not found", req.DeviceResourceName)
 		}
@@ -288,32 +289,46 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 	return nil
 }
 
-// Check for the existance of device parameters in the device file and get them
+// Check for the existence of device parameters in the device file and get them
 func getDeviceParameters(protocols map[string]models.ProtocolProperties) (RestProtocolParams, error) {
 	var restDeviceProtocolParams RestProtocolParams
 	protocolParams, paramsExists := protocols[RESTProtocol]
 	if !paramsExists {
-		return restDeviceProtocolParams, fmt.Errorf("No End device parameters defined in the protocol list")
+		return restDeviceProtocolParams, errors.New("No End device parameters defined in the protocol list")
 	}
+
 	var ok bool
 	// Get end device IP address
-	restDeviceProtocolParams.host, ok = protocolParams[RESTHost]
+	host, ok := protocolParams[RESTHost]
 	if !ok {
-		return restDeviceProtocolParams, fmt.Errorf("RESTHost not found")
+		return restDeviceProtocolParams, errors.New("RESTHost not found")
+	}
+	restDeviceProtocolParams.host, ok = host.(string)
+	if !ok {
+		return restDeviceProtocolParams, errors.New("RESTHost is not string type")
 	}
 
 	// Get end device port number
-	restDeviceProtocolParams.port, ok = protocolParams[RESTPort]
+	port, ok := protocolParams[RESTPort]
 	if !ok {
-		return restDeviceProtocolParams, fmt.Errorf("RESTPort not found")
+		return restDeviceProtocolParams, errors.New("RESTPort not found")
+	}
+	restDeviceProtocolParams.port, ok = port.(string)
+	if !ok {
+		return restDeviceProtocolParams, errors.New("RESTPort is not string type")
 	}
 
 	// Get end device URI prefix, This parameter will be empty for the end devices
 	// which do not have any prefix
-	restDeviceProtocolParams.path, ok = protocolParams[RESTPath]
+	path, ok := protocolParams[RESTPath]
 	if !ok {
-		return restDeviceProtocolParams, fmt.Errorf("RESTPath not found")
+		return restDeviceProtocolParams, errors.New("RESTPath not found")
 	}
+	restDeviceProtocolParams.path, ok = path.(string)
+	if !ok {
+		return restDeviceProtocolParams, errors.New("RESTPath is not string type")
+	}
+
 	return restDeviceProtocolParams, nil
 }
 
