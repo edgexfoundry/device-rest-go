@@ -210,3 +210,6 @@ https://github.com/golang/mod/blob/master/LICENSE
 
 golang.org/x/tools (BSD-3) https://github.com/golang/tools
 https://github.com/golang/tools/blob/master/LICENSE
+
+stretchr/objx (MIT) https://github.com/stretchr/objx
+https://github.com/stretchr/objx/blob/master/LICENSE

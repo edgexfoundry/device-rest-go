@@ -53,7 +53,7 @@ parts:
     source: snap/local/helper-go
     plugin: make
     build-snaps:
-      - go/1.18/stable
+      - go/1.20/stable
     override-build: |
       cd $SNAPCRAFT_PART_SRC
       make build
@@ -65,7 +65,7 @@ parts:
     plugin: make
     build-packages: [git, zip, pkg-config]
     build-snaps:
-      - go/1.18/stable
+      - go/1.20/stable
     override-build: |
       cd $SNAPCRAFT_PART_SRC
 
