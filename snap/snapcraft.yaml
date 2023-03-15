@@ -2,7 +2,9 @@ name: edgex-device-rest
 base: core20
 type: app
 license: Apache-2.0
-adopt-info: metadata
+summary: EdgeX Device REST Service
+description: Refer to https://snapcraft.io/edgex-device-rest
+adopt-info: device-rest
 
 # delhi: 0, edinburgh: 1, fuji: 2, geneva: 3, ireland: 4
 epoch: 4
@@ -33,22 +35,18 @@ plugs:
 apps:
   device-rest:
     adapter: full
-    command: bin/device-rest $CONFIG_PRO_ARG $CONF_ARG $REGISTRY_ARG
+    command: bin/device-rest --configDir $SNAP_DATA/config/device-rest/res --configProvider --registry
     command-chain:
        - bin/source-env-file.sh
     daemon: simple
     install-mode: disable
     environment:
-      CONFIG_PRO_ARG: "--cp=consul://localhost:8500"
-      CONF_ARG: "--configDir=$SNAP_DATA/config/device-rest/res"
-      REGISTRY_ARG: "--registry"
       DEVICE_PROFILESDIR: "$SNAP_DATA/config/device-rest/res/profiles"
       DEVICE_DEVICESDIR: "$SNAP_DATA/config/device-rest/res/devices"
       SECRETSTORE_TOKENFILE: $SNAP_DATA/device-rest/secrets-token.json
     plugs: [network, network-bind]
 
 parts:
-
   helper-go:
     source: snap/local/helper-go
     plugin: make
@@ -60,7 +58,6 @@ parts:
       install -DT ./helper-go $SNAPCRAFT_PART_INSTALL/bin/helper-go
 
   device-rest:
-    after: [metadata]
     source: .
     plugin: make
     build-packages: [git, zip, pkg-config]
@@ -69,12 +66,18 @@ parts:
     override-build: |
       cd $SNAPCRAFT_PART_SRC
 
-      # the version is needed for the build
-      cat ./VERSION
+      if git describe ; then
+        VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
+      else
+        VERSION="0.0.0"
+      fi
+      # set the version of the snap
+      snapcraftctl set-version $VERSION
 
-      make tidy
+      # write version to file for the build
+      echo $VERSION > VERSION
+
       make build
-
       install -DT "./cmd/device-rest" "$SNAPCRAFT_PART_INSTALL/bin/device-rest"
 
       RES=$SNAPCRAFT_PART_INSTALL/config/device-rest/res/
@@ -94,25 +97,4 @@ parts:
     organize:
       source-env-file.sh: bin/source-env-file.sh
 
-  metadata:
-    plugin: nil
-    source: https://github.com/canonical/edgex-snap-metadata.git
-    source-branch: appstream
-    source-depth: 1
-    override-build: |
-      # install the icon at the default internal path
-      install -DT edgex-snap-icon.png \
-        $SNAPCRAFT_PART_INSTALL/meta/gui/icon.png
-      # change to this project's repo to get the version
-      cd $SNAPCRAFT_PROJECT_DIR
-      if git describe ; then
-        VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
-      else
-        VERSION="0.0.0"
-      fi
       
-      # write version to file for the build
-      echo $VERSION > ./VERSION
-      # set the version of this snap
-      snapcraftctl set-version $VERSION
-    parse-info: [edgex-device-rest.metainfo.xml] 
