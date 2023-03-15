@@ -2,7 +2,7 @@ name: edgex-device-rest
 base: core20
 type: app
 license: Apache-2.0
-summary: EdgeX Device REST Service
+summary: EdgeX REST Device Service
 description: Refer to https://snapcraft.io/edgex-device-rest
 adopt-info: device-rest
 
@@ -60,7 +60,8 @@ parts:
   device-rest:
     source: .
     plugin: make
-    build-packages: [git, zip, pkg-config]
+    build-packages: 
+      - git
     build-snaps:
       - go/1.20/stable
     override-build: |
