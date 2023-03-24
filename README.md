@@ -72,42 +72,51 @@ This device service use the standard configuration defined by the **Device SDK**
 
 The `DeviceList` configuration is standard except that it is mandatory to provide end device parameters in the `DeviceList.Protocols.EndDevice_Params` structure for 2way-rest-device functionality. The following is a sample `DeviceList` that works with the sample device profiles referenced below. `path` parameter is optional.
 
-```toml
-[[DeviceList]]
-  Name = "sample-json"
-  ProfileName = "sample-json"
-  Description = "RESTful Device that sends in JSON data"
-  Labels = [ "rest", "json" ]
-  [DeviceList.Protocols]
-    [DeviceList.Protocols.other]
-[[DeviceList]]
-  Name = "sample-image"
-  ProfileName = "sample-image"
-  Description = "RESTful Device that sends in binary image data"
-  Labels = [ "rest", "binary", "image" ]
-  [DeviceList.Protocols]
-    [DeviceList.Protocols.other]    
-[[DeviceList]]
-  Name = "sample-numeric"
-  ProfileName = "sample-numeric"
-  Description = "RESTful Device that sends in numeric data"
-  Labels = [ "rest", "numeric", "float", "int" ]
-  [DeviceList.Protocols]
-    [DeviceList.Protocols.other]
-[[DeviceList]]
-  Name = "2way-rest-device"
-  ProfileName = "sample-2way-rest-device"
-  Description = "RESTful Device that sends data"
-  Labels = [ "rest", "2way-rest-device" ]
-  [DeviceList.Protocols]
-    [DeviceList.Protocols.REST]
-	  Host = "127.0.0.1"
-	  Port = "5000"
-	  Path = "api"
-  [[DeviceList.AutoEvents]]
-    Interval = "20s"
-    OnChange = false
-    SourceName = "json"
+```yaml
+DeviceList:
+  - Name: sample-json
+    ProfileName: sample-json
+    Description: RESTful Device that sends in JSON data
+    Labels:
+      - rest
+      - json
+    Protocols:
+      other: {}
+  - Name: sample-image
+    ProfileName: sample-image
+    Description: RESTful Device that sends in binary image data
+    Labels:
+      - rest
+      - binary
+      - image
+    Protocols:
+      other: {}
+  - Name: sample-numeric
+    ProfileName: sample-numeric
+    Description: RESTful Device that sends in numeric data
+    Labels:
+      - rest
+      - numeric
+      - float
+      - int
+    Protocols:
+      other: {}
+  - Name: 2way-rest-device
+    ProfileName: sample-2way-rest-device
+    Description: RESTful Device that sends data
+    Labels:
+      - rest
+      - 2way-rest-device
+    Protocols:
+      REST:
+        Host: 127.0.0.1
+        Port: '5000'
+        Path: api
+    AutoEvents:
+      - Interval: 20s
+        OnChange: false
+        SourceName: json
+
 ```
 
 ## Device Profile
