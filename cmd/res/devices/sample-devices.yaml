@@ -1,0 +1,44 @@
+# Pre-define Devices
+deviceList:
+  - name: sample-json
+    profileName: sample-json
+    description: RESTful Device that sends in JSON data
+    labels:
+      - rest
+      - json
+    protocols:
+      other: {}
+  - name: sample-image
+    profileName: sample-image
+    description: RESTful Device that sends in binary image data
+    labels:
+      - rest
+      - binary
+      - image
+    protocols:
+      other: {}
+  - name: sample-numeric
+    profileName: sample-numeric
+    description: RESTful Device that sends in numeric data
+    labels:
+      - rest
+      - numeric
+      - float
+      - int
+    protocols:
+      other: {}
+  - name: 2way-rest-device
+    profileName: sample-2way-rest-device
+    description: RESTful Device that sends data
+    labels:
+      - rest
+      - 2way-rest-device
+    protocols:
+      REST:
+        Host: 127.0.0.1
+        Port: '5000'
+        Path: api
+    # autoEvents:
+    #   - Interval: 20s
+    #     OnChange: false
+    #     SourceName: int8
