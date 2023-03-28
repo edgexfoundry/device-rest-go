@@ -73,46 +73,46 @@ This device service use the standard configuration defined by the **Device SDK**
 The `DeviceList` configuration is standard except that it is mandatory to provide end device parameters in the `DeviceList.Protocols.EndDevice_Params` structure for 2way-rest-device functionality. The following is a sample `DeviceList` that works with the sample device profiles referenced below. `path` parameter is optional.
 
 ```yaml
-DeviceList:
-  - Name: sample-json
-    ProfileName: sample-json
-    Description: RESTful Device that sends in JSON data
-    Labels:
+deviceList:
+  - name: sample-json
+    profileName: sample-json
+    description: RESTful Device that sends in JSON data
+    labels:
       - rest
       - json
-    Protocols:
+    protocols:
       other: {}
-  - Name: sample-image
-    ProfileName: sample-image
-    Description: RESTful Device that sends in binary image data
-    Labels:
+  - name: sample-image
+    profileName: sample-image
+    description: RESTful Device that sends in binary image data
+    labels:
       - rest
       - binary
       - image
-    Protocols:
+    protocols:
       other: {}
-  - Name: sample-numeric
-    ProfileName: sample-numeric
-    Description: RESTful Device that sends in numeric data
-    Labels:
+  - name: sample-numeric
+    profileName: sample-numeric
+    description: RESTful Device that sends in numeric data
+    labels:
       - rest
       - numeric
       - float
       - int
-    Protocols:
+    protocols:
       other: {}
-  - Name: 2way-rest-device
-    ProfileName: sample-2way-rest-device
-    Description: RESTful Device that sends data
-    Labels:
+  - name: 2way-rest-device
+    profileName: sample-2way-rest-device
+    description: RESTful Device that sends data
+    labels:
       - rest
       - 2way-rest-device
-    Protocols:
+    protocols:
       REST:
         Host: 127.0.0.1
         Port: '5000'
         Path: api
-    AutoEvents:
+    autoEvents:
       - Interval: 20s
         OnChange: false
         SourceName: json
