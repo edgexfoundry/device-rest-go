@@ -366,3 +366,17 @@ func (driver *RestDriver) RemoveDevice(deviceName string, protocols map[string]m
 	// when data is posted to REST endpoint.
 	return nil
 }
+
+func (driver *RestDriver) Discover() error {
+	return fmt.Errorf("driver's Discover function isn't implemented")
+}
+
+func (driver *RestDriver) ValidateDevice(device models.Device) error {
+	if _, ok := device.Protocols[RESTProtocol]; ok {
+		_, err := getDeviceParameters(device.Protocols)
+		if err != nil {
+			return fmt.Errorf("invalid protocol properties, %v", err)
+		}
+	}
+	return nil
+}
