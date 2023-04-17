@@ -4,12 +4,12 @@ Writable:
   LogLevel: INFO
 
 # uncomment when running from command-line in hybrid mode with -cp -o flags
-# Registry:
+#Registry:
+# Host: localhost
+#
+#Clients:
+# core-metadata:
 #   Host: localhost
-
-# Clients:
-#   core-metadata:
-#     Host: localhost
 
 Service:
   Host: localhost
@@ -17,7 +17,11 @@ Service:
   StartupMsg: device rest started
 
 MessageBus:
-  # Host: localhost # uncomment when running from command-line in hybrid mode
+#  Host: localhost # uncomment when running from command-line in hybrid mode
   Optional:
     ClientId: device-rest
-Driver: {}
+
+Device:
+  # These have common values (currently), but must be here for service local env overrides to apply when customized
+  ProfilesDir: "./res/profiles"
+  DevicesDir: "./res/devices"
