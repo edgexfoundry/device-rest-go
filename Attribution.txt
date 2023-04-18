@@ -210,3 +210,6 @@ https://github.com/golang/tools/blob/master/LICENSE
 
 stretchr/objx (MIT) https://github.com/stretchr/objx
 https://github.com/stretchr/objx/blob/master/LICENSE
+
+github.com/go-jose/go-jose/v3 (Apache-2.0) https://github.com/go-jose/go-jose
+https://github.com/go-jose/go-jose/blob/v3/LICENSE

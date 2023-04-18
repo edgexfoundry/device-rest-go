@@ -59,7 +59,12 @@ type RestProtocolParams struct {
 func (driver *RestDriver) Initialize(sdk interfaces.DeviceServiceSDK) error {
 	driver.logger = sdk.LoggingClient()
 	driver.sdk = sdk
-	handler := NewRestHandler(sdk)
+
+	return nil
+}
+
+func (driver *RestDriver) Start() error {
+	handler := NewRestHandler(driver.sdk)
 	return handler.Start()
 }
 
