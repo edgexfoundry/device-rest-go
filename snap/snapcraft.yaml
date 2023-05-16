@@ -6,8 +6,12 @@ summary: EdgeX REST Device Service
 description: Refer to https://snapcraft.io/edgex-device-rest
 adopt-info: device-rest
 
-# delhi: 0, edinburgh: 1, fuji: 2, geneva: 3, ireland: 4
-epoch: 4
+# 1: edinburgh
+# 2: fuji
+# 3: geneva, hanoi
+# 4: ireland, jakarta, kamakura, levski
+# 5: minnesota
+epoch: 5
 
 # TODO: add armhf here when that's supported
 architectures:
