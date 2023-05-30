@@ -12,6 +12,52 @@
 - [go-mod-secrets](https://github.com/edgexfoundry/go-mod-secrets/blob/main/CHANGELOG.md) (indirect dependency)
 - [go-mod-configuration](https://github.com/edgexfoundry/go-mod-configuration/blob/main/CHANGELOG.md) (indirect dependency)
 
+## [v3.0.0] Minnesota - 2023-05-31 (Only compatible with the 3.x releases)
+
+### Features ✨
+- Add device validation function ([#289](https://github.com/edgexfoundry/device-rest-go/pull/289))
+    ```text
+    BREAKING CHANGE: Implement `ValidateDevice` function to validate device protocol properties for core-metadata  
+    ```
+- Support two-way REST communication ([#229](https://github.com/edgexfoundry/device-rest-go/issues/229)) ([#83d0d95](https://github.com/edgexfoundry/device-rest-go/commits/83d0d95))
+- Update for common config ([#251](https://github.com/edgexfoundry/device-rest-go/pull/251))
+    ```text
+    BREAKING CHANGE: Configuration file is changed to remove common config settings
+    ```
+- Use latest SDK for MessageBus Request API ([#247](https://github.com/edgexfoundry/device-rest-go/pull/247))
+    ```text
+    BREAKING CHANGE: Commands via MessageBus topic configuration are changed
+    ```
+- Remove ZeroMQ MessageBus capability ([#235](https://github.com/edgexfoundry/device-rest-go/pull/235))
+    ```text
+    BREAKING CHANGE: ZeroMQ MessageBus capability no longer available
+    ```
+
+### Bug Fixes 🐛
+- **snap:** Refactor to avoid conflicts with readonly config provider directory ([#275](https://github.com/edgexfoundry/device-rest-go/issues/275)) ([#5399131](https://github.com/edgexfoundry/device-rest-go/commits/5399131))
+
+### Code Refactoring ♻
+- Change configuration and devices files format to YAML ([#281](https://github.com/edgexfoundry/device-rest-go/pull/281))
+    ```text
+    BREAKING CHANGE: Configuration files are now in YAML format, Default file name is now configuration.yaml
+    ```
+- **snap:** Update command and metadata sourcing ([#266](https://github.com/edgexfoundry/device-rest-go/issues/266)) ([#2ded8c8](https://github.com/edgexfoundry/device-rest-go/commits/2ded8c8))
+- **snap:** Drop the support for legacy snap env options ([#238](https://github.com/edgexfoundry/device-rest-go/issues/238))
+    ```text
+    BREAKING CHANGE:
+    - Drop the support for legacy snap options with env. prefix
+    - Upgrade edgex-snap-hooks to v3
+    - Upgrade edgex-snap-testing Github action to v3
+    - Add snap's Go module to dependabot
+    - Other minor refactoring
+    ```
+
+### Documentation 📖
+- Add main branch Warning ([#316](https://github.com/edgexfoundry/device-rest-go/issues/316)) ([#c2b4310](https://github.com/edgexfoundry/device-rest-go/commits/c2b4310))
+
+### Build 👷
+- Update to Go 1.20, Alpine 3.17 and linter v1.51.2 ([#265](https://github.com/edgexfoundry/device-rest-go/issues/265)) ([#eb45550](https://github.com/edgexfoundry/device-rest-go/commits/eb45550))
+
 ## [v2.3.0] Levski - 2022-11-09  (Only compatible with the 2.x releases)
 
 ### Features ✨
