@@ -23,7 +23,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"time"
 
@@ -350,13 +349,13 @@ func checkIntValueRange(valueType string, val interface{}) error {
 func checkFloatValueRange(valueType string, val interface{}) error {
 	switch valueType {
 	case common.ValueTypeFloat32:
-		valFloat := val.(float32)
-		if math.Abs(float64(valFloat)) >= math.SmallestNonzeroFloat32 && math.Abs(float64(valFloat)) <= math.MaxFloat32 {
+		_, ok := val.(float32)
+		if ok {
 			return nil
 		}
 	case common.ValueTypeFloat64:
-		valFloat := val.(float64)
-		if math.Abs(valFloat) >= math.SmallestNonzeroFloat64 && math.Abs(valFloat) <= math.MaxFloat64 {
+		_, ok := val.(float64)
+		if ok {
 			return nil
 		}
 	}
