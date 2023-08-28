@@ -31,12 +31,13 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v3/clients/logger"
 	"github.com/edgexfoundry/go-mod-core-contracts/v3/common"
 	model "github.com/edgexfoundry/go-mod-core-contracts/v3/models"
-	"github.com/gorilla/mux"
+
+	"github.com/labstack/echo/v4"
 	"github.com/spf13/cast"
 )
 
 const (
-	apiResourceRoute  = common.ApiBase + "/resource/{" + common.DeviceName + "}/{" + common.ResourceName + "}"
+	apiResourceRoute  = common.ApiBase + "/resource/:deviceName/:resourceName"
 	handlerContextKey = "RestHandler"
 )
 
@@ -57,7 +58,7 @@ func NewRestHandler(sdk interfaces.DeviceServiceSDK) *RestHandler {
 }
 
 func (handler RestHandler) Start() error {
-	if err := handler.service.AddRoute(apiResourceRoute, handler.addContext(deviceHandler), http.MethodPost); err != nil {
+	if err := handler.service.AddCustomRoute(apiResourceRoute, interfaces.Authenticated, handler.addContext(deviceHandler), http.MethodPost); err != nil {
 		return fmt.Errorf("unable to add required route: %s: %s", apiResourceRoute, err.Error())
 	}
 
@@ -66,45 +67,41 @@ func (handler RestHandler) Start() error {
 	return nil
 }
 
-func (handler RestHandler) addContext(next func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+func (handler RestHandler) addContext(next echo.HandlerFunc) echo.HandlerFunc {
 	// Add the context with the handler so the endpoint handling code can get back to this handler
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), handlerContextKey, handler) //nolint
-		next(w, r.WithContext(ctx))
-	})
+	return func(c echo.Context) error {
+		ctx := context.WithValue(c.Request().Context(), handlerContextKey, handler) //nolint
+		c.SetRequest(c.Request().WithContext(ctx))
+		return next(c)
+	}
 }
 
-func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, request *http.Request) {
-	var result = &models.CommandValue{}
-	vars := mux.Vars(request)
-	deviceName := vars[common.DeviceName]
-	resourceName := vars[common.ResourceName]
+func (handler RestHandler) processAsyncRequest(c echo.Context) error {
+	deviceName := c.Param(common.DeviceName)
+	resourceName := c.Param(common.ResourceName)
 
 	handler.logger.Debugf("Received POST for Device=%s Resource=%s", deviceName, resourceName)
 
 	_, err := handler.service.GetDeviceByName(deviceName)
 	if err != nil {
 		handler.logger.Errorf("Incoming reading ignored. Device '%s' not found", deviceName)
-		http.Error(writer, fmt.Sprintf("Device '%s' not found", deviceName), http.StatusNotFound)
-		return
+		return c.String(http.StatusNotFound, fmt.Sprintf("Device '%s' not found", deviceName))
 	}
 
 	deviceResource, ok := handler.service.DeviceResource(deviceName, resourceName)
 	if !ok {
 		handler.logger.Errorf("Incoming reading ignored. Resource '%s' not found", resourceName)
-		http.Error(writer, fmt.Sprintf("Resource '%s' not found", resourceName), http.StatusNotFound)
-		return
+		return c.String(http.StatusNotFound, fmt.Sprintf("Resource '%s' not found", resourceName))
 	}
 
-	contentType := request.Header.Get(common.ContentType)
+	contentType := c.Request().Header.Get(common.ContentType)
 
 	var reading interface{}
 
-	data, err := handler.readBody(request)
+	data, err := handler.readBody(c.Request())
 	if err != nil {
 		handler.logger.Errorf("Incoming reading ignored. Unable to read request body: %s", err.Error())
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	if deviceResource.Properties.ValueType == common.ValueTypeBinary || deviceResource.Properties.ValueType == common.ValueTypeObject {
@@ -117,16 +114,14 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 	if err != nil {
 		handler.logger.Errorf("Incoming reading ignored. Unable to validate Command Value for Device=%s Command=%s: %s",
 			deviceName, resourceName, err.Error())
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	result, err = models.NewCommandValue(deviceResource.Name, deviceResource.Properties.ValueType, value)
+	result, err := models.NewCommandValue(deviceResource.Name, deviceResource.Properties.ValueType, value)
 	if err != nil {
 		handler.logger.Errorf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s",
 			deviceName, resourceName, err.Error())
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 	result.Origin = time.Now().UnixNano()
 
@@ -138,6 +133,8 @@ func (handler RestHandler) processAsyncRequest(writer http.ResponseWriter, reque
 	handler.logger.Debugf("Incoming reading received: Device=%s Resource=%s", deviceName, resourceName)
 
 	handler.asyncValues <- asyncValues
+
+	return nil
 }
 
 func (handler RestHandler) readBody(request *http.Request) ([]byte, error) {
@@ -154,18 +151,13 @@ func (handler RestHandler) readBody(request *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func deviceHandler(writer http.ResponseWriter, request *http.Request) {
-	handler, ok := request.Context().Value(handlerContextKey).(RestHandler)
+func deviceHandler(c echo.Context) error {
+	handler, ok := c.Request().Context().Value(handlerContextKey).(RestHandler)
 	if !ok {
-		writer.WriteHeader(http.StatusBadRequest)
-		_, err := writer.Write([]byte("Bad context pass to handler"))
-		if err != nil {
-			handler.logger.Debugf("problem in writer of byte array: '%s'", err.Error())
-		}
-		return
+		return c.String(http.StatusBadRequest, "Bad context pass to handler")
 	}
 
-	handler.processAsyncRequest(writer, request)
+	return handler.processAsyncRequest(c)
 }
 
 func validateCommandValue(resource model.DeviceResource, reading interface{}, valueType string, contentType string) (interface{}, error) {

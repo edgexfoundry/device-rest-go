@@ -25,9 +25,6 @@ https://github.com/go-logfmt/logfmt/blob/master/LICENSE
 google/uuid (BSD-3) https://github.com/google/uuid
 https://github.com/google/uuid/blob/master/LICENSE
 
-gorilla/mux 1.6.2 (BSD-3) https://github.com/gorilla/mux
-https://github.com/gorilla/mux/blob/master/LICENSE
-
 hashicorp/go-cleanhttp (Mozilla Public License 2.0) https://github.com/hashicorp/go-cleanhttp
 https://github.com/hashicorp/go-cleanhttp/blob/master/LICENSE
 
