@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/edgexfoundry/device-sdk-go/v3 v3.1.0-dev.16
 	github.com/edgexfoundry/go-mod-core-contracts/v3 v3.1.0-dev.8
-	github.com/gorilla/mux v1.8.0
+	github.com/labstack/echo/v4 v4.11.1
 	github.com/spf13/cast v1.5.1
 	github.com/stretchr/testify v1.8.4
 )
@@ -46,7 +46,6 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/serf v0.10.1 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
-	github.com/labstack/echo/v4 v4.11.1 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
