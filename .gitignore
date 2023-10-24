@@ -18,12 +18,5 @@ vendor/
 cmd/device-rest
 glide.lock
 
-# snap files
-*.snap
-*.assert
-prime/
-stage/
-parts/
-squashfs-root/
 coverage.out
 VERSION

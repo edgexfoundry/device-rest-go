@@ -21,7 +21,7 @@ This device service supports two-way communication for commanding. REST endpoint
 
 ## Build with NATS Messaging
 Currently, the NATS Messaging capability (NATS MessageBus) is opt-in at build time.
-This means that the published Docker image and Snaps do not include the NATS messaging capability.
+This means that the published Docker images do not include the NATS messaging capability.
 
 The following make commands will build the local binary or local Docker image with NATS messaging
 capability included.
@@ -345,12 +345,8 @@ To enable autoevents functionality, It is mandatory to provide `DeviceList.AutoE
         
 ## Packaging
 
-This component is packaged as docker image and snap.
-
-For docker, please refer to the [Dockerfile] and [Docker Compose Builder] scripts.
-
-For the snap, refer to the [snap] directory.
+This component is packaged as docker images.
+Please refer to the [Dockerfile] and [Docker Compose Builder] scripts.
 
 [Dockerfile]: Dockerfile
 [Docker Compose Builder]: https://github.com/edgexfoundry/edgex-compose/tree/main/compose-builder
-[snap]: snap
