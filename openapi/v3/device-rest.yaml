@@ -1,0 +1,45 @@
+openapi: 3.0.0
+info:
+  title: EdgeX Device REST
+  description: Device REST Service REST APIs
+  version: 3.1.0
+servers:
+- url: http://localhost:59986
+  description: Local running instance of Device REST Service
+- url: http://127.0.0.1:59986
+  description: Local running instance of Device REST Service
+- url: http://0.0.0.0:59986
+  description: Local running instance of Device REST Service
+paths:
+  /api/v3/resource/{deviceName}/{resourceName}:
+    post:
+      summary: "Endpoint to POST Async Reading(s)"
+      parameters:
+        - in: path
+          name: deviceName
+          required: true
+          schema:
+            type: string
+          example: sensor01
+          description: "A name uniquely identifying the device."
+        - in: path
+          name: resourceName
+          required: true
+          schema:
+            type: string
+          example: Temperature
+          description: "A name uniquely identifying the resource."
+      requestBody:
+        description: Data to be used as value for the given resource. Content Type should match the resource's data type. Use text/plain for numbers and strings, JSON for object, etc.
+        content:
+          application/json: {}
+          text/plain: {}
+          image/jpeg: {}
+        required: true
+      responses:
+        '200':
+          description: "Indicates the request was processed successfully"
+        '400':
+          description: "Indicates bad request body"
+        '404':
+          description: "Indicates specified device or resource was not found in the system"
