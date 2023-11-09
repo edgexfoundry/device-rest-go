@@ -12,6 +12,47 @@
 - [go-mod-secrets](https://github.com/edgexfoundry/go-mod-secrets/blob/main/CHANGELOG.md) (indirect dependency)
 - [go-mod-configuration](https://github.com/edgexfoundry/go-mod-configuration/blob/main/CHANGELOG.md) (indirect dependency)
 
+
+## [v3.1.0] Napa - 2023-11-15 (Only compatible with the 3.x releases)
+
+
+### ✨  Features
+
+- Remove snap packaging ([#353](https://github.com/edgexfoundry/device-rest-go/issues/353)) ([758b2be…](https://github.com/edgexfoundry/device-rest-go/commit/758b2bed15a3d13a7bac802538a1e1661ebd32c9))
+```text
+
+BREAKING CHANGE: Remove snap packaging ([#353](https://github.com/edgexfoundry/device-rest-go/issues/353))
+
+```
+- Replace gorilla/mux with labstack/echo ([#334](https://github.com/edgexfoundry/device-rest-go/issues/334)) ([cf6f5c6…](https://github.com/edgexfoundry/device-rest-go/commit/cf6f5c6b2bf2b83036e025c5ddfa4d5590d4fdb7))
+
+
+### ♻ Code Refactoring
+
+- Remove obsolete comments from config file ([#355](https://github.com/edgexfoundry/device-rest-go/issues/355)) ([71e268e…](https://github.com/edgexfoundry/device-rest-go/commit/71e268e2bbeb5f32b791e9fe51a95144d8b6bbea))
+- Remove github.com/pkg/errors from Attribution.txt ([bbfcc02…](https://github.com/edgexfoundry/device-rest-go/commit/bbfcc0226598174b6127e805ff9b931fc1acdcd9))
+
+
+### 🐛 Bug Fixes
+
+- Range check for float64/32 equal to 0.0 ([#330](https://github.com/edgexfoundry/device-rest-go/issues/330)) ([89173ea…](https://github.com/edgexfoundry/device-rest-go/commit/89173ea65a943aba0f4628b8150ce015ac4d5016))
+
+
+### 📖 Documentation
+
+- [Device REST] Add Swagger file ([#360](https://github.com/edgexfoundry/device-rest-go/issues/360)) ([47318dc…](https://github.com/edgexfoundry/device-rest-go/commit/47318dce372b4a1f6fa2293d118d34d1e168baa0))
+
+
+### 👷 Build
+
+- Upgrade to go-1.21, Linter1.54.2 and Alpine 3.18 ([#340](https://github.com/edgexfoundry/device-rest-go/issues/340)) ([7661139…](https://github.com/edgexfoundry/device-rest-go/commit/7661139dd1c3d848a7247d8835c5c2fde1868ee5))
+
+
+### 🤖 Continuous Integration
+
+- Add automated release workflow on tag creation ([4617776…](https://github.com/edgexfoundry/device-rest-go/commit/4617776163951c6dac5c14d5cbb20ddb9bf695df))
+
+
 ## [v3.0.0] Minnesota - 2023-05-31 (Only compatible with the 3.x releases)
 
 ### Features ✨
