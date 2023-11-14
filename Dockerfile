@@ -42,6 +42,8 @@ LABEL Name=device-rest-go Version=${VERSION}
 
 # dumb-init needed for injected secure bootstrapping entrypoint script when run in secure mode.
 RUN apk add --update --no-cache dumb-init
+# Ensure using latest versions of all installed packages to avoid any recent CVEs
+RUN apk --no-cache upgrade
 
 COPY --from=builder /device-rest-go/cmd /
 COPY --from=builder /device-rest-go/LICENSE /
