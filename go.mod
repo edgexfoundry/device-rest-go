@@ -6,7 +6,7 @@ require (
 	github.com/edgexfoundry/device-sdk-go/v3 v3.2.0-dev.1
 	github.com/edgexfoundry/go-mod-core-contracts/v3 v3.2.0-dev.1
 	github.com/labstack/echo/v4 v4.11.3
-	github.com/spf13/cast v1.5.1
+	github.com/spf13/cast v1.6.0
 	github.com/stretchr/testify v1.8.4
 )
 
