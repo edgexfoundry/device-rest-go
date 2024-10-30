@@ -17,7 +17,7 @@
 package main
 
 import (
-	"github.com/edgexfoundry/device-sdk-go/v3/pkg/startup"
+	"github.com/edgexfoundry/device-sdk-go/v4/pkg/startup"
 
 	"github.com/edgexfoundry/device-rest-go"
 	"github.com/edgexfoundry/device-rest-go/driver"

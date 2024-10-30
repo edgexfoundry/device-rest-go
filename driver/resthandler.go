@@ -26,11 +26,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/edgexfoundry/device-sdk-go/v3/pkg/interfaces"
-	"github.com/edgexfoundry/device-sdk-go/v3/pkg/models"
-	"github.com/edgexfoundry/go-mod-core-contracts/v3/clients/logger"
-	"github.com/edgexfoundry/go-mod-core-contracts/v3/common"
-	model "github.com/edgexfoundry/go-mod-core-contracts/v3/models"
+	"github.com/edgexfoundry/device-sdk-go/v4/pkg/interfaces"
+	"github.com/edgexfoundry/device-sdk-go/v4/pkg/models"
+	"github.com/edgexfoundry/go-mod-core-contracts/v4/clients/logger"
+	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
+	model "github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cast"
