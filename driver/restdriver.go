@@ -108,7 +108,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		if protocolParams.path != "" {
 			uri = fmt.Sprintf("http://%s:%s/%s/%s?%s", protocolParams.host, protocolParams.port, protocolParams.path, req.DeviceResourceName, reqParam)
 		} else {
-			uri = fmt.Sprintf(uri, "http://%s:%s/%s?%s", protocolParams.host, protocolParams.port, req.DeviceResourceName, reqParam)
+			uri = fmt.Sprintf("http://%s:%s/%s?%s", protocolParams.host, protocolParams.port, req.DeviceResourceName, reqParam)
 		}
 		driver.logger.Debugf("Sending REST Get command to uri = %v", uri)
 
