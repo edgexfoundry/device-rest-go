@@ -3,7 +3,7 @@ module github.com/edgexfoundry/device-rest-go
 go 1.23.4
 
 require (
-	github.com/edgexfoundry/device-sdk-go/v4 v4.1.0-dev.11
+	github.com/edgexfoundry/device-sdk-go/v4 v4.1.0-dev.12
 	github.com/edgexfoundry/go-mod-core-contracts/v4 v4.1.0-dev.6
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/spf13/cast v1.9.2
@@ -57,6 +57,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kataras/go-events v0.0.3 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
