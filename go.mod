@@ -3,7 +3,7 @@ module github.com/edgexfoundry/device-rest-go
 go 1.23.4
 
 require (
-	github.com/edgexfoundry/device-sdk-go/v4 v4.1.0-dev.16
+	github.com/edgexfoundry/device-sdk-go/v4 v4.1.0-dev.17
 	github.com/edgexfoundry/go-mod-core-contracts/v4 v4.1.0-dev.6
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/spf13/cast v1.9.2
