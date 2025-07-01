@@ -1,9 +1,9 @@
 module github.com/edgexfoundry/device-rest-go
 
-go 1.23.4
+go 1.23.7
 
 require (
-	github.com/edgexfoundry/device-sdk-go/v4 v4.1.0-dev.17
+	github.com/edgexfoundry/device-sdk-go/v4 v4.1.0-dev.18
 	github.com/edgexfoundry/go-mod-core-contracts/v4 v4.1.0-dev.6
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/spf13/cast v1.9.2
@@ -17,9 +17,9 @@ require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/eclipse/paho.mqtt.golang v1.5.0 // indirect
-	github.com/edgexfoundry/go-mod-bootstrap/v4 v4.1.0-dev.14 // indirect
-	github.com/edgexfoundry/go-mod-configuration/v4 v4.1.0-dev.7 // indirect
-	github.com/edgexfoundry/go-mod-messaging/v4 v4.1.0-dev.9 // indirect
+	github.com/edgexfoundry/go-mod-bootstrap/v4 v4.1.0-dev.16 // indirect
+	github.com/edgexfoundry/go-mod-configuration/v4 v4.1.0-dev.9 // indirect
+	github.com/edgexfoundry/go-mod-messaging/v4 v4.1.0-dev.10 // indirect
 	github.com/edgexfoundry/go-mod-registry/v4 v4.1.0-dev.3 // indirect
 	github.com/edgexfoundry/go-mod-secrets/v4 v4.1.0-dev.3 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
@@ -50,7 +50,6 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
-	github.com/gorilla/schema v1.4.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -82,7 +81,7 @@ require (
 	github.com/openziti/foundation/v2 v2.0.63 // indirect
 	github.com/openziti/identity v1.0.101 // indirect
 	github.com/openziti/metrics v1.4.1 // indirect
-	github.com/openziti/sdk-golang v1.1.1 // indirect
+	github.com/openziti/sdk-golang v1.1.2 // indirect
 	github.com/openziti/secretstream v0.1.34 // indirect
 	github.com/openziti/transport/v2 v2.0.171 // indirect
 	github.com/orcaman/concurrent-map/v2 v2.0.1 // indirect
@@ -105,7 +104,9 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zeebo/errs v1.4.0 // indirect
-	github.com/zitadel/oidc/v2 v2.12.2 // indirect
+	github.com/zitadel/logging v0.6.2 // indirect
+	github.com/zitadel/oidc/v3 v3.39.0 // indirect
+	github.com/zitadel/schema v1.3.1 // indirect
 	go.mongodb.org/mongo-driver v1.17.0 // indirect
 	go.mozilla.org/pkcs7 v0.9.0 // indirect
 	go.opentelemetry.io/otel v1.32.0 // indirect
@@ -122,7 +123,6 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a // indirect
 	google.golang.org/grpc v1.70.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
-	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.17 // indirect
 )
