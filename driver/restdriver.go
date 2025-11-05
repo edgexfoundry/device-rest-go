@@ -83,7 +83,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 	// First get all these details from the device file
 	protocolParams, err = getDeviceParameters(protocols)
 	if err != nil {
-		return nil, fmt.Errorf("Device parameters missing :%s \n", err.Error())
+		return nil, fmt.Errorf("device parameters missing :%s", err.Error())
 	}
 
 	// Now, we have got required end device information, its time to create GET request
@@ -95,7 +95,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		// from cache according to the Device name and Device Resource name
 		deviceResource, ok := driver.sdk.DeviceResource(deviceName, req.DeviceResourceName)
 		if !ok {
-			return nil, fmt.Errorf("Resource not found")
+			return nil, fmt.Errorf("resource not found")
 		}
 
 		// Now get the query parameters received in the request.
@@ -127,14 +127,14 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		resp, err := client.Do(request)
 		if err != nil {
 			// handle error
-			return nil, fmt.Errorf("Get request failed")
+			return nil, fmt.Errorf("get request failed")
 		}
 
 		// GET request to end device success, Its time to parse the response received
 		// Return immediately if status code is > 299
 		// Ref: https://pkg.go.dev/net/http
 		if resp.StatusCode > 299 {
-			return nil, fmt.Errorf("Get response failed with status code: %v", resp.StatusCode)
+			return nil, fmt.Errorf("get response failed with status code: %v", resp.StatusCode)
 		}
 
 		// Reached here, as the success response is received. Let's get
@@ -143,7 +143,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return responses, fmt.Errorf("Read command failed. Cmd:%v err:%v \n", req.DeviceResourceName, err)
+			return responses, fmt.Errorf("read command failed. Cmd:%v err:%v", req.DeviceResourceName, err)
 		}
 
 		// We are going to validate received content type against the expected
@@ -161,7 +161,7 @@ func (driver *RestDriver) HandleReadCommands(deviceName string, protocols map[st
 
 		val, err = validateCommandValue(deviceResource, reading, deviceResource.Properties.ValueType, contentType)
 		if err != nil {
-			return nil, fmt.Errorf("Recevice response data is not valid")
+			return nil, fmt.Errorf("recevice response data is not valid")
 		}
 
 		// Now, we have valid response data. This needs to be sent as response to the read command request. Create a CommandValue according to the data type
@@ -194,7 +194,7 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 	// First get all these details from the device file
 	protocolParams, err = getDeviceParameters(protocols)
 	if err != nil {
-		return fmt.Errorf("Device parameters missing :%s \n", err.Error())
+		return fmt.Errorf("device parameters missing :%s", err.Error())
 	}
 
 	for i, req := range reqs {
@@ -205,7 +205,7 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 		// from cache according to the Device name and Device Resource name
 		deviceResource, ok := driver.sdk.DeviceResource(deviceName, req.DeviceResourceName)
 		if !ok {
-			return fmt.Errorf("Incoming Writing ignored. Resource '%s' not found", req.DeviceResourceName)
+			return fmt.Errorf("incoming writing ignored. resource '%s' not found", req.DeviceResourceName)
 		}
 
 		// Now get the query parameters received in the request.
@@ -265,7 +265,7 @@ func (driver *RestDriver) HandleWriteCommands(deviceName string, protocols map[s
 			request.Header.Set(common.ContentType, common.ContentTypeText)
 
 		default:
-			return fmt.Errorf("Unsupported value type: %v", valueType)
+			return fmt.Errorf("unsupported value type: %v", valueType)
 		}
 
 		// Now we have created http PUT request instance with uri, and payload. This
@@ -301,7 +301,7 @@ func getDeviceParameters(protocols map[string]models.ProtocolProperties) (RestPr
 	var restDeviceProtocolParams RestProtocolParams
 	protocolParams, paramsExists := protocols[RESTProtocol]
 	if !paramsExists {
-		return restDeviceProtocolParams, errors.New("No End device parameters defined in the protocol list")
+		return restDeviceProtocolParams, errors.New("no end device parameters defined in the protocol list")
 	}
 
 	var ok bool
